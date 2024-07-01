@@ -11,12 +11,12 @@ class TemplateService
 {
     public function addTemplate()
     {
-        $template = new Template();
-        $template->name = 'default-name';
-        $template->logo = 'lg';
-        $template->title = 'default-title';
-        $template->footer = 'default-footer';
-        $template->save();
+        $template = Template::create([
+            'name' => 'default-name',
+            'logo' =>'lg',
+            'title' => 'default-title',
+            'footer' => 'default-footer',
+        ]);
         $template->name = 'default-name' . $template->id;
         $template->save();
         $this->addSection($template->id);
@@ -110,12 +110,13 @@ class TemplateService
     }
     public function cloneTemplate($template)
     {
-        $newtemplate = new Template();
-        $newtemplate->name = $template->name;
-        $newtemplate->logo = $template->logo;
-        $newtemplate->title = $template->title;
-        $newtemplate->footer = $template->footer;
-        $newtemplate->save();
+
+        $newtemplate = Template::create([
+            'name' => $template->name,
+            'logo' =>$template->logo,
+            'title' => $template->title,
+            'footer' => $template->footer,
+        ]);
         $query = Section::where('template_id', $template->id)->get()->map(function ($section) use ($newtemplate) {
             $newsection = $this->addSection($newtemplate->id);
             $newsection->type = $section->type;
@@ -145,13 +146,13 @@ class TemplateService
     }
     public function addSection($template_id)
     {
-        $section = new Section();
-        $section->type = 1;
-        $section->title = 'default-title';
-        $section->content1 = 'default-content';
-        $section->content2 = '';
-        $section->template_id = $template_id;
-        $section->save();
+        $section = Section::create([
+            'type' => 1,
+            'title' => 'default-title',
+            'content1' => 'default-content',
+            'content2' => '',
+            'template_id' => $template_id,
+        ]);
         return $section;
     }
     public function deleteSection($section)

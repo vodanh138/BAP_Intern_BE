@@ -17,7 +17,7 @@ class UserController extends Controller
 {
     protected $templateService;
 
-    public function __construct( TemplateService $templateService)
+    public function __construct(TemplateService $templateService)
     {
         $this->templateService = $templateService;
     }
@@ -32,18 +32,18 @@ class UserController extends Controller
             return response()->json(['error' => $validator->errors()], 422);
         }
         $user = User::where('username', 'test01')->first();
-        if (!$user) {
-            if (!Template::first()) {
-                $template = $this->templateService->addTemplate();
-                $show = new Show();
-                $show->template_id = $template->id;
-                $show->save();
-            }
+        if (!Template::first()) {
+            $template = $this->templateService->addTemplate();
 
-            $user = new User();
-            $user->username = 'test01';
-            $user->password = bcrypt('123456');
-            $user->save();
+            Show::create([
+                'template_id' => $template->id,
+            ]);
+        }
+        if (!$user) {
+            $user = User::create([
+                'username' => 'test01',
+                'password' => bcrypt('123456'),
+            ]);
 
             $userRole = Role::firstOrCreate(['name' => 'admin']);
             $user->roles()->syncWithoutDetaching($userRole);

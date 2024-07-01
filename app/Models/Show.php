@@ -9,7 +9,9 @@ class Show extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name'];
+    protected $fillable = [
+        'template_id',
+    ];
     public function template()
     {
         return $this->belongsTo(Template::class);

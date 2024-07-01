@@ -9,7 +9,13 @@ class Section extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name'];
+    protected $fillable = [
+        'type',
+        'title',
+        'content1',
+        'content2',
+        'template_id',
+    ];
     public function template()
     {
         return $this->belongsTo(Template::class);

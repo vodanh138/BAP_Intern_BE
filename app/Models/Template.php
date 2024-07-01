@@ -9,7 +9,12 @@ class Template extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name'];
+    protected $fillable = [
+        'name',
+        'logo',
+        'title',
+        'footer',
+    ];
     public function user()
     {
         return $this->belongsTo(User::class);
