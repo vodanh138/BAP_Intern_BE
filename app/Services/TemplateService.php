@@ -17,7 +17,7 @@ class TemplateService
         $template->title = 'default-title';
         $template->footer = 'default-footer';
         $template->save();
-        $template->name = 'default-name'.$template->id;
+        $template->name = 'default-name' . $template->id;
         $template->save();
         $this->addSection($template->id);
         return $template;
@@ -92,29 +92,39 @@ class TemplateService
     public function getTemplate($template)
     {
         $query = Section::where('template_id', $template->id)->get()->map(function ($section) {
-            if ($section->type == 1) {
-                $section->content1 = $section->content1 . " " . $section->content2;
-                return [
-                    'type' => $section->type,
-                    'title' => $section->title,
-                    'content' => $section->content1,
-                ];
-            } else if ($section->type == 2) {
-                return [
-                    'type' => $section->type,
-                    'title' => $section->title,
-                    'content1' => $section->content1,
-                    'content2' => $section->content2,
-                ];
-            }
+            return [
+                'type' => $section->type,
+                'title' => $section->title,
+                'content1' => $section->content1,
+                'content2' => $section->content2,
+            ];
         });
 
         return response()->json([
+            //'id' => $template->id,
             'logo' => $template->logo,
             'title' => $template->title,
             'footer' => $template->footer,
             'section' => $query,
         ]);
+    }
+    public function cloneTemplate($template)
+    {
+        $newtemplate = new Template();
+        $newtemplate->name = $template->name;
+        $newtemplate->logo = $template->logo;
+        $newtemplate->title = $template->title;
+        $newtemplate->footer = $template->footer;
+        $newtemplate->save();
+        $query = Section::where('template_id', $template->id)->get()->map(function ($section) use ($newtemplate) {
+            $newsection = $this->addSection($newtemplate->id);
+            $newsection->type = $section->type;
+            $newsection->title = $section->title;
+            $newsection->content1 = $section->content1;
+            $newsection->content2 = $section->content2;
+            $newsection->save();
+        });
+        return $this->getTemplate($newtemplate);
     }
 
     public function getAllTemplates()
@@ -131,7 +141,7 @@ class TemplateService
         $show = Show::first();
         $show->template_id = $template->id;
         $show->save();
-        return response()->json(['message' => 'Template change successfully']);
+        return $this->getTemplate($template);
     }
     public function addSection($template_id)
     {
@@ -142,14 +152,37 @@ class TemplateService
         $section->content2 = '';
         $section->template_id = $template_id;
         $section->save();
+        return $section;
     }
     public function deleteSection($section)
     {
-        $temp = Template::where('id', Show::first()->template_id)->first();
-        if ($section->id === $temp->id)
-            return response()->json(['message' => 'Cannot delete the chosen template']);
+        $count = Section::where('template_id', $section->template_id)->count();
+        if ($count === 1)
+            return response()->json(['message' => 'Cannot delete the only section']);
 
         $section->delete();
-        return response()->json(['message' => 'Template deleted successfully']);
+        return response()->json(['message' => 'Section deleted successfully']);
     }
+    public function editSection($request, $Section)
+    {
+        $validator = Validator::make($request->all(), [
+            'type' => 'required|integer|max:2|min:1',
+            'title' => 'required|string',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()], 422);
+        }
+
+        $Section->type = $request->type;
+        $Section->title = $request->title;
+        $Section->content1 = '';
+        $Section->content2 = '';
+        $Section->content1 = $request->input('content1', '');
+        if ($request->type == 2)
+            $Section->content2 = $request->input('content2', '');
+        $Section->save();
+
+        return $Section;
+    }
+    
 }

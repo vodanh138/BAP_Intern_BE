@@ -1,7 +1,6 @@
 <?php
 namespace App\Http\Controllers;
 
-use App\Services\UserService;
 use App\Services\TemplateService;
 use Illuminate\Http\Request;
 use App\Models\Template;
@@ -95,6 +94,10 @@ class UserController extends Controller
     {
         return $this->templateService->show();
     }
+    public function CloneTemplate(Template $template)
+    {
+        return $this->templateService->cloneTemplate($template);
+    }
 
     public function GetTemplate(Template $template)
     {
@@ -123,5 +126,9 @@ class UserController extends Controller
     public function DeleteSecion(Section $section)
     {
         return $this->templateService->deleteSection($section);
+    }
+    public function EditSection(Request $request, Section $section)
+    {
+        return $this->templateService->editSection($request, $section);
     }
 }
