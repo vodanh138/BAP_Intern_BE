@@ -13,12 +13,14 @@ Route::get('/', [UserController::class, 'Show']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/GetAllTemplate', [UserController::class, 'GetAllTemplate']);
     Route::get('/GetTemplate/{template}', [UserController::class, 'GetTemplate']);
+    Route::post('/logout', [UserController::class, 'logout'])->name('logout');
     
     Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
         Route::post('/AddTemplate', [UserController::class, 'AddTemplate']);
         Route::post('/AddSecion', [UserController::class, 'AddSecion']);
         Route::put('/EditTemplate/{template}', [UserController::class, 'EditTemplate']);
         Route::delete('/DeleteTemplate/{template}', [UserController::class, 'DeleteTemplate']);
+        Route::delete('/DeleteSecion/{section}', [UserController::class, 'DeleteSecion']);
         Route::put('/{template}', [UserController::class, 'ChangeTemplate']);
     });
 });

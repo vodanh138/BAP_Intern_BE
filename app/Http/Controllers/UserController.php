@@ -35,7 +35,7 @@ class UserController extends Controller
         $user = User::where('username', 'test01')->first();
         if (!$user) {
             if (!Template::first()) {
-                $template = $this->templateService->addTemplate('default-name','lg','default-title','default-footer');
+                $template = $this->templateService->addTemplate();
                 $show = new Show();
                 $show->template_id = $template->id;
                 $show->save();
@@ -69,19 +69,16 @@ class UserController extends Controller
             return response()->json(['error' => 'Unauthorized']);
         }
     }
+    public function logout(Request $request)
+    {
+        $request->user()->currentAccessToken()->delete();
+
+        return response()->json(['message' => 'Logged out successfully']);
+    }
 
     public function AddTemplate(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string',
-            'logo' => 'required|max:3',
-            'title' => 'required|string',
-            'footer' => 'required|string',
-        ]);
-        if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()], 422);
-        }
-        return $this->templateService->addTemplate($request->name,$request->logo,$request->title,$request->footer);
+        return $this->templateService->addTemplate();
     }
 
     public function EditTemplate(Request $request, Template $template)
@@ -116,15 +113,15 @@ class UserController extends Controller
     public function AddSecion(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'type' => 'required|integer|max:2|min:1',
-            'title' => 'required|string',
-            'content1' => 'required|string',
-            'content2' => 'required|string',
             'template_id' => 'required|integer',
         ]);
         if ($validator->fails()) {
             return response()->json(['error' => $validator->errors()], 422);
         }
-        return $this->templateService->addSection($request->type,$request->title,$request->content1,$request->content2,$request->template_id);
+        return $this->templateService->addSection($request->template_id);
+    }
+    public function DeleteSecion(Section $section)
+    {
+        return $this->templateService->deleteSection($section);
     }
 }

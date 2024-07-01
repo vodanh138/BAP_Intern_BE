@@ -6,18 +6,20 @@ use App\Models\Section;
 use App\Models\Show;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
+
 class TemplateService
 {
-    public function addTemplate($name,$logo,$title,$footer)
+    public function addTemplate()
     {
         $template = new Template();
-        $template->name = $name;
-        $template->logo = $logo;
-        $template->title = $title;
-        $template->footer = $footer;
+        $template->name = 'default-name';
+        $template->logo = 'lg';
+        $template->title = 'default-title';
+        $template->footer = 'default-footer';
         $template->save();
-
-        $this->addSection(1,"default-title","default-content","",$template->id);
+        $template->name = 'default-name'.$template->id;
+        $template->save();
+        $this->addSection($template->id);
         return $template;
     }
 
@@ -47,14 +49,21 @@ class TemplateService
         $temp = Template::where('id', Show::first()->template_id)->first();
         if ($template->id === $temp->id)
             return response()->json(['message' => 'Cannot delete the chosen template']);
-        
+
         $template->delete();
         return response()->json(['message' => 'Template deleted successfully']);
     }
 
     public function show()
     {
+        $show = Show::first();
+        if (!$show) {
+            return response()->json(['message' => 'There are nothing to show']);
+        }
         $temp = Template::where('id', Show::first()->template_id)->first();
+        if (!$temp) {
+            return response()->json(['message' => 'No template have been chosen']);
+        }
         $query = Section::where('template_id', $temp->id)->get()->map(function ($section) {
             if ($section->type == 1) {
                 return [
@@ -86,11 +95,13 @@ class TemplateService
             if ($section->type == 1) {
                 $section->content1 = $section->content1 . " " . $section->content2;
                 return [
+                    'type' => $section->type,
                     'title' => $section->title,
                     'content' => $section->content1,
                 ];
             } else if ($section->type == 2) {
                 return [
+                    'type' => $section->type,
                     'title' => $section->title,
                     'content1' => $section->content1,
                     'content2' => $section->content2,
@@ -122,13 +133,23 @@ class TemplateService
         $show->save();
         return response()->json(['message' => 'Template change successfully']);
     }
-    public function addSection($type,$title,$content1,$content2,$template_id){
+    public function addSection($template_id)
+    {
         $section = new Section();
-        $section->type = $type;
-        $section->title = $title;
-        $section->content1 = $content1;
-        $section->content2 = $content2;
+        $section->type = 1;
+        $section->title = 'default-title';
+        $section->content1 = 'default-content';
+        $section->content2 = '';
         $section->template_id = $template_id;
         $section->save();
+    }
+    public function deleteSection($section)
+    {
+        $temp = Template::where('id', Show::first()->template_id)->first();
+        if ($section->id === $temp->id)
+            return response()->json(['message' => 'Cannot delete the chosen template']);
+
+        $section->delete();
+        return response()->json(['message' => 'Template deleted successfully']);
     }
 }
