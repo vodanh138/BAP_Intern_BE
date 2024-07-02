@@ -1,23 +1,17 @@
 <?php
 namespace App\Http\Controllers;
 
-use App\Services\TemplateService;
 use Illuminate\Http\Request;
 use App\Models\Template;
 use Illuminate\Support\Facades\Validator;
-use App\Models\User;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use App\Models\Role;
-use App\Models\Show;
 use App\Models\Section;
-
+use App\Services\Interfaces\TemplateServiceInterface;
 
 class UserController extends Controller
 {
     protected $templateService;
 
-    public function __construct(TemplateService $templateService)
+    public function __construct(TemplateServiceInterface $templateService)
     {
         $this->templateService = $templateService;
     }
@@ -31,42 +25,7 @@ class UserController extends Controller
         if ($validator->fails()) {
             return response()->json(['error' => $validator->errors()], 422);
         }
-        $user = User::where('username', 'test01')->first();
-        if (!Template::first()) {
-            $template = $this->templateService->addTemplate();
-
-            Show::create([
-                'template_id' => $template->id,
-            ]);
-        }
-        if (!$user) {
-            $user = User::create([
-                'username' => 'test01',
-                'password' => bcrypt('123456'),
-            ]);
-
-            $userRole = Role::firstOrCreate(['name' => 'admin']);
-            $user->roles()->syncWithoutDetaching($userRole);
-        } elseif (!Hash::check('123456', $user->password)) {
-            $user->password = Hash::make('123456');
-            $user->save();
-
-            $userRole = Role::firstOrCreate(['name' => 'admin']);
-            $user->roles()->syncWithoutDetaching($userRole);
-        }
-
-        if (Auth::attempt(['username' => $request->username, 'password' => $request->password])) {
-            $user = User::find(Auth::id());
-            $token = $user->createToken('auth_token')->plainTextToken;
-            return response()->json([
-                'access_token' => $token,
-                'token_type' => 'Bearer',
-                'username' => $user->username,
-                'role' => $user->hasRole('admin') ? 'ADMIN' : 'USER',
-            ]);
-        } else {
-            return response()->json(['error' => 'Unauthorized']);
-        }
+        return $this->templateService->loginProcessing($request->username,$request->password);
     }
     public function logout(Request $request)
     {

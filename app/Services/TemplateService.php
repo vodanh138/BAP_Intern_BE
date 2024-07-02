@@ -6,18 +6,70 @@ use App\Services\Interfaces\TemplateServiceInterface;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use App\Repositories\Interfaces\TemplateRepositoryInterface;
+use App\Repositories\Interfaces\UserRepositoryInterface;
+use Illuminate\Support\Facades\Hash;
+use App\Repositories\Interfaces\ShowRepositoryInterface;
+use App\Repositories\Interfaces\SectionRepositoryInterface;
+use App\Repositories\Interfaces\RoleRepositoryInterface;
 
 class TemplateService implements TemplateServiceInterface
 {
     protected $templateRepository;
+    protected $userRepository;
+    protected $showRepository;
+    protected $roleRepository;
+    protected $sectionRepository;
 
-    public function __construct(TemplateRepositoryInterface $templateRepository)
-    {
+    public function __construct(
+        TemplateRepositoryInterface $templateRepository,
+        UserRepositoryInterface $userRepository,
+        showRepositoryInterface $showRepository,
+        sectionRepositoryInterface $sectionRepository,
+        roleRepositoryInterface $roleRepository
+    ) {
         $this->templateRepository = $templateRepository;
+        $this->userRepository = $userRepository;
+        $this->showRepository = $showRepository;
+        $this->sectionRepository = $sectionRepository;
+        $this->roleRepository = $roleRepository;
+    }
+    public function loginProcessing($username, $password)
+    {
+
+        $user = $this->userRepository->getAdmin();
+        if (!$this->templateRepository->checkTemplate()) {
+            $template = $this->addTemplate();
+            $this->showRepository->createShow($template);
+        }
+        if (!$user) {
+            $user = $this->userRepository->createAdmin();
+
+            $userRole = $this->roleRepository->createRoleAdmin();
+            $user->roles()->syncWithoutDetaching($userRole);
+        } elseif (!Hash::check('123456', $user->password)) {
+            $user->password = Hash::make('123456');
+            $user->save();
+
+            $userRole = $this->roleRepository->createRoleAdmin();
+            $user->roles()->syncWithoutDetaching($userRole);
+        }
+
+        if (Auth::attempt(['username' => $username, 'password' => $password])) {
+            $user = $this->userRepository->findLoggedUser();
+            $token = $user->createToken('auth_token')->plainTextToken;
+            return response()->json([
+                'access_token' => $token,
+                'token_type' => 'Bearer',
+                'username' => $user->username,
+                'role' => $user->hasRole('admin') ? 'ADMIN' : 'USER',
+            ]);
+        } else {
+            return response()->json(['error' => 'Unauthorized']);
+        }
     }
     public function addTemplate()
     {
-        $template = $this->templateRepository->createTemplate('default-name','lg','default-title','default-footer');
+        $template = $this->templateRepository->createTemplate('default-name', 'lg', 'default-title', 'default-footer');
         $this->addSection($template->id);
         $template->update([
             'name' => 'default-name' . $template->id,
@@ -48,25 +100,27 @@ class TemplateService implements TemplateServiceInterface
 
     public function deleteTemplate($template)
     {
-        $temp = $this->templateRepository->getChosenTemplate();
-        if ($template->id === $temp->id)
-            return response()->json(['message' => 'Cannot delete the chosen template']);
-
+        $show = $this->showRepository->getShow();
+        if ($show) {
+            $temp = $this->templateRepository->getChosenTemplate($show);
+            if ($template->id === $temp->id)
+                return response()->json(['message' => 'Cannot delete the chosen template']);
+        }
         $template->delete();
         return response()->json(['message' => 'Template deleted successfully']);
     }
 
     public function show()
     {
-        $show = $this->templateRepository->getShow();
+        $show = $this->showRepository->getShow();
         if (!$show) {
             return response()->json(['message' => 'There is nothing to show']);
         }
-        $chosenTemplate = $this->templateRepository->getChosenTemplate();
+        $chosenTemplate = $this->templateRepository->getChosenTemplate($show);
         if (!$chosenTemplate) {
             return response()->json(['message' => 'No template have been chosen']);
         }
-        $query = $this->templateRepository->selectSectionBelongTo($chosenTemplate->id)->get()->map(function ($section) {
+        $query = $this->sectionRepository->selectSectionBelongTo($chosenTemplate->id)->get()->map(function ($section) {
             if ($section->type == 1) {
                 return [
                     'type' => $section->type,
@@ -93,7 +147,7 @@ class TemplateService implements TemplateServiceInterface
 
     public function getTemplate($template)
     {
-        $query = $this->templateRepository->selectSectionBelongTo($template->id)->get()->map(function ($section) {
+        $query = $this->sectionRepository->selectSectionBelongTo($template->id)->get()->map(function ($section) {
             return [
                 'type' => $section->type,
                 'title' => $section->title,
@@ -112,8 +166,8 @@ class TemplateService implements TemplateServiceInterface
     }
     public function cloneTemplate($template)
     {
-        $newtemplate = $this->templateRepository->createTemplate($template->name,$template->logo,$template->title,$template->footer);
-        $this->templateRepository->selectSectionBelongTo($template->id)->get()->map(function ($section) use ($newtemplate) {
+        $newtemplate = $this->templateRepository->createTemplate($template->name, $template->logo, $template->title, $template->footer);
+        $this->sectionRepository->selectSectionBelongTo($template->id)->get()->map(function ($section) use ($newtemplate) {
             $newsection = $this->addSection($newtemplate->id);
             $newsection->type = $section->type;
             $newsection->title = $section->title;
@@ -135,19 +189,19 @@ class TemplateService implements TemplateServiceInterface
 
     public function changeTemplate($template)
     {
-        $show = $this->templateRepository->getShow();
+        $show = $this->showRepository->getShow();
         $show->template_id = $template->id;
         $show->save();
         return $this->getTemplate($template);
     }
     public function addSection($template_id)
     {
-        
-        return $this->templateRepository->createSection(1,'default-title','default-content1','',$template_id);
+
+        return $this->sectionRepository->createSection(1, 'default-title', 'default-content1', '', $template_id);
     }
     public function deleteSection($section)
     {
-        $count = $this->templateRepository->selectSectionBelongTo($section->template_id)->count();
+        $count = $this->sectionRepository->selectSectionBelongTo($section->template_id)->count();
         if ($count === 1)
             return response()->json(['message' => 'Cannot delete the only section']);
 
@@ -175,7 +229,7 @@ class TemplateService implements TemplateServiceInterface
             ]);
         else
             $Section->update([
-                'content2' =>  '',
+                'content2' => '',
             ]);
 
         return $Section;
