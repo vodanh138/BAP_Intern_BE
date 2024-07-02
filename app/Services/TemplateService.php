@@ -1,25 +1,27 @@
 <?php
 namespace App\Services;
 
-use App\Models\Template;
-use App\Models\Section;
-use App\Models\Show;
+
+use App\Services\Interfaces\TemplateServiceInterface;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
+use App\Repositories\Interfaces\TemplateRepositoryInterface;
 
-class TemplateService
+class TemplateService implements TemplateServiceInterface
 {
+    protected $templateRepository;
+
+    public function __construct(TemplateRepositoryInterface $templateRepository)
+    {
+        $this->templateRepository = $templateRepository;
+    }
     public function addTemplate()
     {
-        $template = Template::create([
-            'name' => 'default-name',
-            'logo' =>'lg',
-            'title' => 'default-title',
-            'footer' => 'default-footer',
-        ]);
-        $template->name = 'default-name' . $template->id;
-        $template->save();
+        $template = $this->templateRepository->createTemplate('default-name','lg','default-title','default-footer');
         $this->addSection($template->id);
+        $template->update([
+            'name' => 'default-name' . $template->id,
+        ]);
         return $template;
     }
 
@@ -34,19 +36,19 @@ class TemplateService
         if ($validator->fails()) {
             return response()->json(['error' => $validator->errors()], 422);
         }
-
-        $template->name = $request->name;
-        $template->logo = $request->logo;
-        $template->title = $request->title;
-        $template->footer = $request->footer;
-        $template->save();
+        $template->update([
+            'name' => $request->name,
+            'logo' => $request->logo,
+            'title' => $request->title,
+            'footer' => $request->footer,
+        ]);
 
         return $template;
     }
 
     public function deleteTemplate($template)
     {
-        $temp = Template::where('id', Show::first()->template_id)->first();
+        $temp = $this->templateRepository->getChosenTemplate();
         if ($template->id === $temp->id)
             return response()->json(['message' => 'Cannot delete the chosen template']);
 
@@ -56,15 +58,15 @@ class TemplateService
 
     public function show()
     {
-        $show = Show::first();
+        $show = $this->templateRepository->getShow();
         if (!$show) {
-            return response()->json(['message' => 'There are nothing to show']);
+            return response()->json(['message' => 'There is nothing to show']);
         }
-        $temp = Template::where('id', Show::first()->template_id)->first();
-        if (!$temp) {
+        $chosenTemplate = $this->templateRepository->getChosenTemplate();
+        if (!$chosenTemplate) {
             return response()->json(['message' => 'No template have been chosen']);
         }
-        $query = Section::where('template_id', $temp->id)->get()->map(function ($section) {
+        $query = $this->templateRepository->selectSectionBelongTo($chosenTemplate->id)->get()->map(function ($section) {
             if ($section->type == 1) {
                 return [
                     'type' => $section->type,
@@ -82,16 +84,16 @@ class TemplateService
         });
 
         return response()->json([
-            'logo' => $temp->logo,
-            'title' => $temp->title,
-            'footer' => $temp->footer,
+            'logo' => $chosenTemplate->logo,
+            'title' => $chosenTemplate->title,
+            'footer' => $chosenTemplate->footer,
             'section' => $query,
         ]);
     }
 
     public function getTemplate($template)
     {
-        $query = Section::where('template_id', $template->id)->get()->map(function ($section) {
+        $query = $this->templateRepository->selectSectionBelongTo($template->id)->get()->map(function ($section) {
             return [
                 'type' => $section->type,
                 'title' => $section->title,
@@ -110,14 +112,8 @@ class TemplateService
     }
     public function cloneTemplate($template)
     {
-
-        $newtemplate = Template::create([
-            'name' => $template->name,
-            'logo' =>$template->logo,
-            'title' => $template->title,
-            'footer' => $template->footer,
-        ]);
-        $query = Section::where('template_id', $template->id)->get()->map(function ($section) use ($newtemplate) {
+        $newtemplate = $this->templateRepository->createTemplate($template->name,$template->logo,$template->title,$template->footer);
+        $this->templateRepository->selectSectionBelongTo($template->id)->get()->map(function ($section) use ($newtemplate) {
             $newsection = $this->addSection($newtemplate->id);
             $newsection->type = $section->type;
             $newsection->title = $section->title;
@@ -133,31 +129,25 @@ class TemplateService
         $user = Auth::user();
         return response()->json([
             'username' => $user->username,
-            'templates' => Template::all(),
+            'templates' => $this->templateRepository->getAllTemplate(),
         ]);
     }
 
     public function changeTemplate($template)
     {
-        $show = Show::first();
+        $show = $this->templateRepository->getShow();
         $show->template_id = $template->id;
         $show->save();
         return $this->getTemplate($template);
     }
     public function addSection($template_id)
     {
-        $section = Section::create([
-            'type' => 1,
-            'title' => 'default-title',
-            'content1' => 'default-content',
-            'content2' => '',
-            'template_id' => $template_id,
-        ]);
-        return $section;
+        
+        return $this->templateRepository->createSection(1,'default-title','default-content1','',$template_id);
     }
     public function deleteSection($section)
     {
-        $count = Section::where('template_id', $section->template_id)->count();
+        $count = $this->templateRepository->selectSectionBelongTo($section->template_id)->count();
         if ($count === 1)
             return response()->json(['message' => 'Cannot delete the only section']);
 
@@ -174,16 +164,21 @@ class TemplateService
             return response()->json(['error' => $validator->errors()], 422);
         }
 
-        $Section->type = $request->type;
-        $Section->title = $request->title;
-        $Section->content1 = '';
-        $Section->content2 = '';
-        $Section->content1 = $request->input('content1', '');
+        $Section->update([
+            'type' => $request->type,
+            'title' => $request->title,
+            'content1' => $request->input('content1', ''),
+        ]);
         if ($request->type == 2)
-            $Section->content2 = $request->input('content2', '');
-        $Section->save();
+            $Section->update([
+                'content2' => $request->input('content2', ''),
+            ]);
+        else
+            $Section->update([
+                'content2' =>  '',
+            ]);
 
         return $Section;
     }
-    
+
 }
