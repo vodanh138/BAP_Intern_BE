@@ -39,7 +39,7 @@ class UserController extends Controller
             ]);
         } catch (\Exception $e) {
             return response()->json([
-                'status' => 'fail',
+                'status' => 'error',
                 'message' => 'Failed to log out',
                 'error' => $e->getMessage()
             ], 500);
