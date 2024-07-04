@@ -9,6 +9,7 @@ use App\Models\Section;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class initial extends Seeder
 {
@@ -26,7 +27,7 @@ class initial extends Seeder
         ]);
         User::create([
             'username' => 'test01',
-            'password' => bcrypt('123456'),
+            'password' => Hash::make(123456),
         ]);
         Show::create([
             'template_id' => 1,
