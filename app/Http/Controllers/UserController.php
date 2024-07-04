@@ -10,7 +10,6 @@ use App\Services\Interfaces\TemplateServiceInterface;
 class UserController extends Controller
 {
     protected $templateService;
-
     public function __construct(TemplateServiceInterface $templateService)
     {
         $this->templateService = $templateService;
@@ -23,18 +22,31 @@ class UserController extends Controller
             'password' => 'required',
         ]);
         if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()], 422);
+            return response()->json([
+                'status' => 'fail',
+                'message' => $validator->errors()
+            ], 422);
         }
-        return $this->templateService->loginProcessing($request->username,$request->password);
+        return $this->templateService->loginProcessing($request->username, $request->password);
     }
     public function logout(Request $request)
     {
-        $request->user()->currentAccessToken()->delete();
-
-        return response()->json(['message' => 'Logged out successfully']);
+        try {
+            $request->user()->currentAccessToken()->delete();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Logged out successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'fail',
+                'message' => 'Failed to log out',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
-    public function AddTemplate(Request $request)
+    public function AddTemplate()
     {
         return $this->templateService->addTemplate();
     }
@@ -78,7 +90,10 @@ class UserController extends Controller
             'template_id' => 'required|integer',
         ]);
         if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()], 422);
+            return response()->json([
+                'status' => 'fail',
+                'message' => $validator->errors()
+            ], 422);
         }
         return $this->templateService->addSection($request->template_id);
     }
