@@ -75,7 +75,7 @@ class TemplateService implements TemplateServiceInterface
             return response()->json([
                 'status' => 'success',
                 'message' => 'Log in successfully',
-                'access_token' => $token,
+                'accessToken' => $token,
                 'token_type' => 'Bearer',
                 'username' => $user->username,
                 'role' => $user->hasRole('admin') ? 'ADMIN' : 'USER',
