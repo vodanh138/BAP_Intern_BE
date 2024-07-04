@@ -5,7 +5,7 @@ namespace App\Services\Interfaces;
 interface TemplateServiceInterface
 {
     public function loginProcessing($username,$password);
-    public function addTemplate();
+    public function addTemplate($request);
     public function editTemplate($request, $template);
     public function deleteTemplate($template);
     public function show();

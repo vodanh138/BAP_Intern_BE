@@ -46,9 +46,9 @@ class UserController extends Controller
         }
     }
 
-    public function AddTemplate()
+    public function AddTemplate(Request  $request)
     {
-        return $this->templateService->addTemplate();
+        return $this->templateService->addTemplate($request);
     }
 
     public function EditTemplate(Request $request, Template $template)
