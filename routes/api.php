@@ -10,7 +10,7 @@ Route::get('/not-authorized', function () {
     ], 401);
 })->name('login');
 Route::post('/LoginProcessing', [UserController::class, 'LoginProcessing']);
-Route::get('/', [UserController::class, 'Show']);
+Route::get('/ClientView', [UserController::class, 'Show']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/GetAllTemplate', [UserController::class, 'GetAllTemplate']);

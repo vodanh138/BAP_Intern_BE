@@ -149,7 +149,7 @@ class TemplateService implements TemplateServiceInterface
         }
         return response()->json([
             'status' => 'success',
-            'message' => 'Template ' . $template . 'delete successfully',
+            'message' => 'Template ' . $template . 'deleted successfully',
         ]);
     }
 
