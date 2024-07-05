@@ -24,7 +24,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/Template/{template}', [UserController::class, 'EditTemplate']);
         Route::delete('/Template', [UserController::class, 'DeleteTemplate']);
         Route::delete('/Section/{section}', [UserController::class, 'DeleteSection']);
-        Route::put('/ChooseTemplate/{template}', [UserController::class, 'ChangeTemplate']);
+        Route::put('/Show/{template}', [UserController::class, 'ChangeTemplate']);
         Route::put('/Section/{section}', [UserController::class, 'EditSection']);
     });
 });
