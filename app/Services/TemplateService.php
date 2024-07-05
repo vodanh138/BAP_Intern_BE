@@ -172,7 +172,6 @@ class TemplateService implements TemplateServiceInterface
         $query = $this->sectionRepository->selectSectionBelongTo($chosenTemplate->id)->get()->map(function ($section) {
             if ($section->type == 1) {
                 return [
-                    'section-id' => $section->id,
                     'type' => $section->type,
                     'title' => $section->title,
                     'content' => $section->content1,
