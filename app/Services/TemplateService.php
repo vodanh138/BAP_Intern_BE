@@ -118,21 +118,38 @@ class TemplateService implements TemplateServiceInterface
         ]);
     }
 
-    public function deleteTemplate($template)
+    public function deleteTemplate($templateIds)
     {
+        if (is_string($templateIds)) {
+            $templateIds = explode(',', $templateIds);
+        }
+        if (!is_array($templateIds)) {
+            return response()->json([
+                'status' => 'fail',
+                'message' => 'Invalid template_ids format.'
+            ], 400);
+        }
         $show = $this->showRepository->getShow();
-        if ($show) {
-            $temp = $this->templateRepository->getChosenTemplate($show);
-            if ($template->id === $temp->id)
+        foreach ($templateIds as $templateId) {
+            if (!$this->templateRepository->getATemplate($templateId))
                 return response()->json([
                     'status' => 'fail',
-                    'message' => 'Cannot delete the chosen template'
+                    'message' => 'Template ' . $templateId . ' not found',
+                ]);
+            if ($templateId == $show->template_id)
+                return response()->json([
+                    'status' => 'fail',
+                    'message' => 'Cannot delete template ' . $templateId . '(chosen template)',
                 ]);
         }
-        $template->delete();
+        $template = '';
+        foreach ($templateIds as $templateId) {
+            $this->templateRepository->getATemplate($templateId)->delete();
+            $template .= $templateId . ',';
+        }
         return response()->json([
             'status' => 'success',
-            'message' => 'Template deleted successfully'
+            'message' => 'Template ' . $template . 'delete successfully',
         ]);
     }
 
@@ -145,7 +162,7 @@ class TemplateService implements TemplateServiceInterface
                 'message' => 'There is nothing to show'
             ]);
         }
-        $chosenTemplate = $this->templateRepository->getChosenTemplate($show);
+        $chosenTemplate = $this->templateRepository->getATemplate($show->template_id);
         if (!$chosenTemplate) {
             return response()->json([
                 'status' => 'fail',

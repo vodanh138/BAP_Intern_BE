@@ -28,8 +28,8 @@ class TemplateRepository extends BaseRepository implements TemplateRepositoryInt
     {
         return $this->model->all();
     }
-    public function getChosenTemplate($show)
+    public function getATemplate($id)
     {
-        return $this->model->find($show->template_id);
+        return $this->model->find($id);
     }
 }

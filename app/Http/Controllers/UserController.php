@@ -46,7 +46,7 @@ class UserController extends Controller
         }
     }
 
-    public function AddTemplate(Request  $request)
+    public function AddTemplate(Request $request)
     {
         return $this->templateService->addTemplate($request);
     }
@@ -56,9 +56,10 @@ class UserController extends Controller
         return $this->templateService->editTemplate($request, $template);
     }
 
-    public function DeleteTemplate(Template $template)
+    public function DeleteTemplate(Request $request)
     {
-        return $this->templateService->deleteTemplate($template);
+        $templateIds = $request->input('template_ids', []);
+        return $this->templateService->deleteTemplate($templateIds);
     }
 
     public function Show()
@@ -84,7 +85,7 @@ class UserController extends Controller
     {
         return $this->templateService->changeTemplate($template);
     }
-    public function AddSecion(Request $request)
+    public function AddSection(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'template_id' => 'required|integer',
@@ -97,7 +98,7 @@ class UserController extends Controller
         }
         return $this->templateService->addSection($request->template_id);
     }
-    public function DeleteSecion(Section $section)
+    public function DeleteSection(Section $section)
     {
         return $this->templateService->deleteSection($section);
     }
