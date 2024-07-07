@@ -147,9 +147,10 @@ class TemplateService implements TemplateServiceInterface
             $this->templateRepository->getATemplate($templateId)->delete();
             $template .= $templateId . ',';
         }
+        $template = rtrim($template, ',');
         return response()->json([
             'status' => 'success',
-            'message' => 'Template ' . $template . 'deleted successfully',
+            'message' => 'Template ' . $template . ' deleted successfully',
         ]);
     }
 
@@ -218,9 +219,18 @@ class TemplateService implements TemplateServiceInterface
             'section' => $query,
         ]);
     }
-    public function cloneTemplate($template)
+    public function cloneTemplate($template, $request)
     {
-        $newtemplate = $this->templateRepository->createTemplate($template->name, $template->logo, $template->title, $template->footer);
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string',
+        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'fail',
+                'message' => $validator->errors()
+            ], 422);
+        }
+        $newtemplate = $this->templateRepository->createTemplate($request->name, $template->logo, $template->title, $template->footer);
         if (!$newtemplate)
             return response()->json([
                 'status' => 'fail',
@@ -240,7 +250,7 @@ class TemplateService implements TemplateServiceInterface
         return response()->json([
             'status' => 'success',
             'message' => 'Clone template successfully',
-            'template' => $this->getTemplate($newtemplate),
+            'template' => $this->getTemplate($newtemplate)->original,
         ]);
     }
 
@@ -294,30 +304,22 @@ class TemplateService implements TemplateServiceInterface
     }
     public function editSection($request, $Section)
     {
-        $validator = Validator::make($request->all(), [
-            'type' => 'required|integer|max:2|min:1',
-            'title' => 'required|string',
-        ]);
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => 'fail',
-                'message' => $validator->errors()
-            ], 422);
+        $data = [];
+        if ($request->has('type')) {
+            $data['type'] = $request->input('type');
+            if ($request->type == 2)
+                $data['content2'] = $request->input('content2','');
+            else
+                $data['content2'] = '';
         }
+        if ($request->has('title')) {
+            $data['title'] = $request->input('title');
+        }
+        if ($request->has('content1')) {
+            $data['content1'] = $request->input('content1');
+        }
+        $Section->update($data);
 
-        $Section->update([
-            'type' => $request->type,
-            'title' => $request->title,
-            'content1' => $request->input('content1', ''),
-        ]);
-        if ($request->type == 2)
-            $Section->update([
-                'content2' => $request->input('content2', ''),
-            ]);
-        else
-            $Section->update([
-                'content2' => '',
-            ]);
 
         return response()->json([
             'status' => 'success',

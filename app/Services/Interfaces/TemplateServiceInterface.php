@@ -10,7 +10,7 @@ interface TemplateServiceInterface
     public function deleteTemplate($template);
     public function show();
     public function getTemplate($template);
-    public function cloneTemplate($template);
+    public function cloneTemplate($template,$request);
     public function getAllTemplates();
     public function changeTemplate($template);
     public function addSection($template_id);

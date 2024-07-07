@@ -66,9 +66,9 @@ class UserController extends Controller
     {
         return $this->templateService->show();
     }
-    public function CloneTemplate(Template $template)
+    public function CloneTemplate(Template $template, Request $request)
     {
-        return $this->templateService->cloneTemplate($template);
+        return $this->templateService->cloneTemplate($template,$request);
     }
 
     public function GetTemplate(Template $template)

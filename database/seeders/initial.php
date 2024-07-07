@@ -1,6 +1,7 @@
 <?php
 
 namespace Database\Seeders;
+
 use App\Models\Template;
 use App\Models\Show;
 use App\Models\User;
@@ -25,13 +26,14 @@ class initial extends Seeder
             'title' => 'default-title',
             'footer' => 'default-footer',
         ]);
-        User::create([
+        $user = User::create([
             'username' => 'test01',
-            'password' => Hash::make(123456),
+            'password' => Hash::make('123456'),
         ]);
         Show::create([
             'template_id' => 1,
-        ]);;
+        ]);
+        ;
         Section::create([
             'type' => 1,
             'title' => 'default-title',
@@ -39,6 +41,8 @@ class initial extends Seeder
             'content2' => '',
             'template_id' => 1,
         ]);
-        Role::create(['name' => 'admin']);
+        $role = Role::create(['name' => 'admin']);
+
+        $user->roles()->attach($role->id);
     }
 }
