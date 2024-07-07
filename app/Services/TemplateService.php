@@ -308,16 +308,16 @@ class TemplateService implements TemplateServiceInterface
         if ($request->has('type')) {
             $data['type'] = $request->input('type');
             if ($request->type == 2)
-                $data['content2'] = $request->input('content2','');
+                $data['content2'] = $request->input('content2', '');
             else
                 $data['content2'] = '';
-        }
-        if ($request->has('title')) {
+        } else if ($request->has('content2') && $Section->type == 2)
+            $data['content2'] = $request->input('content2', '');
+        if ($request->has('title'))
             $data['title'] = $request->input('title');
-        }
-        if ($request->has('content1')) {
+        if ($request->has('content1'))
             $data['content1'] = $request->input('content1');
-        }
+
         $Section->update($data);
 
 
