@@ -32,4 +32,8 @@ class TemplateRepository extends BaseRepository implements TemplateRepositoryInt
     {
         return $this->model->find($id);
     }
+    public function getATemplateByName($name)
+    {
+        return $this->model->where('name', $name)->first();
+    }
 }

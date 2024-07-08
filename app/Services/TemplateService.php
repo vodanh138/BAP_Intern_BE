@@ -71,6 +71,12 @@ class TemplateService implements TemplateServiceInterface
                 'message' => $validator->errors()
             ], 422);
         }
+        $template = $this->templateRepository->getATemplateByName($request->name);
+        if ($template)
+            return response()->json([
+                'status' => 'fail',
+                'message' => "Template's name must be unique",
+            ]);
         $template = $this->templateRepository->createTemplate($request->name, 'lg', 'default-title', 'default-footer');
         if (!$template)
             return response()->json([
@@ -274,23 +280,29 @@ class TemplateService implements TemplateServiceInterface
     }
     public function editSection($request, $Section)
     {
-        $data = [];
-        if ($request->has('type')) {
-            $data['type'] = $request->input('type');
-            if ($request->type == 2)
-                $data['content2'] = $request->input('content2', '');
-            else
-                $data['content2'] = '';
-        } else if ($request->has('content2') && $Section->type == 2)
-            $data['content2'] = $request->input('content2', '');
-        if ($request->has('title'))
-            $data['title'] = $request->input('title');
-        if ($request->has('content1'))
-            $data['content1'] = $request->input('content1');
-
-        $Section->update($data);
-
-
+        $validator = Validator::make($request->all(), [
+            'type' => 'required|integer|max:2|min:1',
+            'title' => 'required|string',
+        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'fail',
+                'message' => $validator->errors()
+            ], 422);
+        }
+        $Section->update([
+            'type' => $request->type,
+            'title' => $request->title,
+            'content1' => $request->input('content1', ''),
+        ]);
+        if ($request->type == 2)
+            $Section->update([
+                'content2' => $request->input('content2', ''),
+            ]);
+        else
+            $Section->update([
+                'content2' => '',
+            ]);
         return response()->json([
             'status' => 'success',
             'message' => 'Edit template successfully',

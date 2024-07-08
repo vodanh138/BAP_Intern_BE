@@ -8,5 +8,6 @@ interface TemplateRepositoryInterface extends RepositoryInterface
     public function createTemplate($name,$logo,$title,$footer);
     public function getATemplate($id);
     public function getAllTemplate();
+    public function getATemplateByName($name);
 
 }
