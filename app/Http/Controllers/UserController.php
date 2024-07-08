@@ -85,18 +85,9 @@ class UserController extends Controller
     {
         return $this->templateService->changeTemplate($template);
     }
-    public function AddSection(Request $request)
+    public function AddSection(Template $template)
     {
-        $validator = Validator::make($request->all(), [
-            'template_id' => 'required|integer',
-        ]);
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => 'fail',
-                'message' => $validator->errors()
-            ], 422);
-        }
-        return $this->templateService->addSection($request->template_id);
+        return $this->templateService->addSection($template->id);
     }
     public function DeleteSection(Section $section)
     {

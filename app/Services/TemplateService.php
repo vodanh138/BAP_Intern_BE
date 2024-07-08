@@ -7,7 +7,6 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use App\Repositories\Interfaces\TemplateRepositoryInterface;
 use App\Repositories\Interfaces\UserRepositoryInterface;
-use Illuminate\Support\Facades\Hash;
 use App\Repositories\Interfaces\ShowRepositoryInterface;
 use App\Repositories\Interfaces\SectionRepositoryInterface;
 use App\Repositories\Interfaces\RoleRepositoryInterface;

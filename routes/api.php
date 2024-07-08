@@ -20,12 +20,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
         Route::post('/template', [UserController::class, 'AddTemplate']);
         Route::post('/template/{template}', [UserController::class, 'CloneTemplate']);
-        Route::post('/section', [UserController::class, 'AddSection']);
+        Route::post('/{template}/section', [UserController::class, 'AddSection']);
         Route::put('/template/{template}', [UserController::class, 'EditTemplate']);
         Route::delete('/template', [UserController::class, 'DeleteTemplate']);
         Route::delete('/section/{section}', [UserController::class, 'DeleteSection']);
         Route::put('/show/{template}', [UserController::class, 'ChangeTemplate']);
-        Route::put('/section/{section}', [UserController::class, 'EditSection']);
+        Route::put('/{template}/section/{section}', [UserController::class, 'EditSection']);
 
         Route::put('/template/{templateId}/header', [UserController::class, 'EditHeader']);
         Route::put('/template/{templateId}/footer', [UserController::class, 'EditFooter']);
