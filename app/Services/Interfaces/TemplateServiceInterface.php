@@ -16,5 +16,6 @@ interface TemplateServiceInterface
     public function addSection($template_id);
     public function deleteSection($section);
     public function editSection($request, $Section);
-    
+    public function editHeader($request, $templateId);
+    public function editFooter($request, $templateId);
 }

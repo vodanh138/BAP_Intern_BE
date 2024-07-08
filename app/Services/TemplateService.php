@@ -94,9 +94,6 @@ class TemplateService implements TemplateServiceInterface
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string',
-            'title' => 'required|string',
-            'footer' => 'required|string',
-            'logo' => 'required|max:3',
         ]);
         if ($validator->fails()) {
             return response()->json([
@@ -106,14 +103,11 @@ class TemplateService implements TemplateServiceInterface
         }
         $template->update([
             'name' => $request->name,
-            'logo' => $request->logo,
-            'title' => $request->title,
-            'footer' => $request->footer,
         ]);
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Edit template successfully',
+            'message' => "Edit template's name successfully",
             'template' => $template,
         ]);
     }
@@ -170,22 +164,7 @@ class TemplateService implements TemplateServiceInterface
                 'message' => 'No template have been chosen'
             ]);
         }
-        $query = $this->sectionRepository->selectSectionBelongTo($chosenTemplate->id)->get()->map(function ($section) {
-            if ($section->type == 1) {
-                return [
-                    'type' => $section->type,
-                    'title' => $section->title,
-                    'content' => $section->content1,
-                ];
-            } else if ($section->type == 2) {
-                return [
-                    'type' => $section->type,
-                    'title' => $section->title,
-                    'content1' => $section->content1,
-                    'content2' => $section->content2,
-                ];
-            }
-        });
+        $query = $this->sectionRepository->selectSectionBelongTo($chosenTemplate->id)->get();
 
         return response()->json([
             'status' => 'success',
@@ -200,15 +179,7 @@ class TemplateService implements TemplateServiceInterface
 
     public function getTemplate($template)
     {
-        $query = $this->sectionRepository->selectSectionBelongTo($template->id)->get()->map(function ($section) {
-            return [
-                'section-id' => $section->id,
-                'type' => $section->type,
-                'title' => $section->title,
-                'content1' => $section->content1,
-                'content2' => $section->content2,
-            ];
-        });
+        $query = $this->sectionRepository->selectSectionBelongTo($template->id)->get();
 
         return response()->json([
             'status' => 'success',
@@ -328,4 +299,71 @@ class TemplateService implements TemplateServiceInterface
         ]);
     }
 
+    public function editHeader($request, $templateId)
+    {
+        $validator = Validator::make($request->all(), [
+            'title' => 'required|string',
+            'logo' => 'required|string|max:3|min:3'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'fail',
+                'message' => $validator->errors()
+            ], 422);
+        }
+
+        $template = $this->templateRepository->getATemplate($templateId);
+
+        if (!$template) {
+            return response()->json([
+                'status' => 'fail',
+                'message' => 'Template not found',
+            ], 404);
+        }
+
+        $template->update([
+            'title' => $request->title,
+            'logo' => $request->logo,
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Header updated successfully',
+            'template' => $template,
+        ]);
+    }
+
+    public function editFooter($request, $templateId)
+    {
+        $validator = Validator::make($request->all(), [
+            'footer' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'fail',
+                'message' => $validator->errors()
+            ], 422);
+        }
+
+        $template = $this->templateRepository->getATemplate($templateId);
+
+        if (!$template) {
+            return response()->json([
+                'status' => 'fail',
+                'message' => 'Template not found',
+            ], 404);
+        }
+
+        $template->update([
+            'footer' => $request->footer,
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Footer updated successfully',
+            'template' => $template,
+        ]);
+    }
 }

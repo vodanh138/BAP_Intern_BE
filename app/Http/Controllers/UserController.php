@@ -106,4 +106,14 @@ class UserController extends Controller
     {
         return $this->templateService->editSection($request, $section);
     }
+
+    public function EditHeader(Request $request, $templateId)
+    {
+        return $this->templateService->editHeader($request, $templateId);
+    }
+
+    public function EditFooter(Request $request, $templateId)
+    {
+        return $this->templateService->editFooter($request, $templateId);
+    }
 }
