@@ -25,6 +25,7 @@ class initial extends Seeder
             'logo' => 'lg',
             'title' => 'default-title',
             'footer' => 'default-footer',
+            'ava_path' => 'default-ava',
         ]);
         $user = User::create([
             'username' => 'test01',

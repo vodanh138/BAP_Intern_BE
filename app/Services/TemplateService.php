@@ -1,7 +1,6 @@
 <?php
 namespace App\Services;
 
-
 use App\Services\Interfaces\TemplateServiceInterface;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
@@ -77,7 +76,7 @@ class TemplateService implements TemplateServiceInterface
                 'status' => 'fail',
                 'message' => "Template's name must be unique",
             ]);
-        $template = $this->templateRepository->createTemplate($request->name, 'lg', 'default-title', 'default-footer');
+        $template = $this->templateRepository->createTemplate($request->name, 'lg', 'default-title', 'default-footer', 'default-ava');
         if (!$template)
             return response()->json([
                 'status' => 'fail',
@@ -178,6 +177,7 @@ class TemplateService implements TemplateServiceInterface
             'logo' => $chosenTemplate->logo,
             'title' => $chosenTemplate->title,
             'footer' => $chosenTemplate->footer,
+            'ava_path' => $chosenTemplate->ava_path,
             'section' => $query,
         ]);
     }
@@ -192,6 +192,7 @@ class TemplateService implements TemplateServiceInterface
             'logo' => $template->logo,
             'title' => $template->title,
             'footer' => $template->footer,
+            'ava_path' => $template->ava_path,
             'section' => $query,
         ]);
     }
@@ -206,7 +207,7 @@ class TemplateService implements TemplateServiceInterface
                 'message' => $validator->errors()
             ], 422);
         }
-        $newtemplate = $this->templateRepository->createTemplate($request->name, $template->logo, $template->title, $template->footer);
+        $newtemplate = $this->templateRepository->createTemplate($request->name, $template->logo, $template->title, $template->footer, $template->ava_path);
         if (!$newtemplate)
             return response()->json([
                 'status' => 'fail',
@@ -375,6 +376,46 @@ class TemplateService implements TemplateServiceInterface
             'status' => 'success',
             'message' => 'Footer updated successfully',
             'template' => $template,
+        ]);
+    }
+    public function editAvatar($request, $template)
+    {
+        $validator = Validator::make($request->all(), [
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'fail',
+                'message' => $validator->errors()
+            ], 422);
+        }
+
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = time() . '.' . $image->getClientOriginalExtension();
+
+            $oldImage = $template->ava_path;
+            if ($oldImage) {
+                $oldImagePath = public_path('storage') . '/' . $oldImage;
+                if (file_exists($oldImagePath)) {
+                    unlink($oldImagePath);
+                }
+            }
+
+            $image->move(public_path('storage'), $imageName);
+            $template->update([
+                'ava_path' => $imageName,
+            ]);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Change Avatar successfully',
+            ]);
+        }
+
+        return response()->json([
+            'status' => 'fail',
+            'message' => 'Failed to change Avatar',
         ]);
     }
 }

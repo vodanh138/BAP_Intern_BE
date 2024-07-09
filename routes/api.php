@@ -28,5 +28,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/{template}/section/{section}', [UserController::class, 'EditSection']);
         Route::put('/template/{templateId}/header', [UserController::class, 'EditHeader']);
         Route::put('/template/{templateId}/footer', [UserController::class, 'EditFooter']);
+        Route::post('/{template}/ava', [UserController::class, 'EditAvatar']);
     });
 });
+
+// DELETE THE ROUTE BELOW WHEN COMPLETED
+Route::get('/template/{template}', [UserController::class, 'GetTemplate']);
+Route::post('/{template}/ava', [UserController::class, 'EditAvatar']);

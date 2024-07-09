@@ -68,7 +68,7 @@ class UserController extends Controller
     }
     public function CloneTemplate(Template $template, Request $request)
     {
-        return $this->templateService->cloneTemplate($template,$request);
+        return $this->templateService->cloneTemplate($template, $request);
     }
 
     public function GetTemplate(Template $template)
@@ -93,7 +93,7 @@ class UserController extends Controller
     {
         return $this->templateService->deleteSection($section);
     }
-    public function EditSection(Request $request, Section $section)
+    public function EditSection(Request $request, Template $template, Section $section)
     {
         return $this->templateService->editSection($request, $section);
     }
@@ -106,5 +106,9 @@ class UserController extends Controller
     public function EditFooter(Request $request, $templateId)
     {
         return $this->templateService->editFooter($request, $templateId);
+    }
+    public function EditAvatar(Template $template, Request $request)
+    {
+        return $this->templateService->editAvatar($request, $template);
     }
 }
