@@ -54,6 +54,12 @@ class Handler extends ExceptionHandler
                 'message' => 'Resource not found'
             ], 404);
         }
+        if ($exception instanceof \Illuminate\Database\QueryException) {
+            return response()->json([
+                'status' => 'fail',
+                'message' => 'Some errors occurred',
+            ]);
+        }
 
         return parent::render($request, $exception);
     }
