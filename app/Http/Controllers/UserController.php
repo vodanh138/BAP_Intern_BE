@@ -93,7 +93,7 @@ class UserController extends Controller
     {
         return $this->templateService->deleteSection($section);
     }
-    public function EditSection(Request $request, Template $template, Section $section)
+    public function EditSection(Request $request, Section $section)
     {
         return $this->templateService->editSection($request, $section);
     }
