@@ -76,7 +76,7 @@ class TemplateService implements TemplateServiceInterface
                 'status' => 'fail',
                 'message' => "Template's name must be unique",
             ]);
-        $template = $this->templateRepository->createTemplate($request->name, 'lg', 'default-title', 'default-footer', 'default-ava');
+        $template = $this->templateRepository->createTemplate($request->name, 'lg', 'default-title', 'default-footer', '/images/default-ava.png');
         if (!$template)
             return response()->json([
                 'status' => 'fail',
@@ -233,11 +233,11 @@ class TemplateService implements TemplateServiceInterface
 
     public function getAllTemplates()
     {
-        $user = Auth::user();
+        //$user = Auth::user();
         $show = $this->showRepository->getShow();
         return response()->json([
             'status' => 'success',
-            'username' => $user->username,
+            'username' => '$user->username',
             'chosen' => $show->template_id,
             'templates' => $this->templateRepository->getAllTemplate(),
         ]);
@@ -392,7 +392,7 @@ class TemplateService implements TemplateServiceInterface
 
         if ($request->hasFile('image')) {
             $image = $request->file('image');
-            $imageName = time() . '.' . $image->getClientOriginalExtension();
+            $imageName = '/storage/'.time() . '.' . $image->getClientOriginalExtension();
 
             $oldImage = $template->ava_path;
             if ($oldImage) {

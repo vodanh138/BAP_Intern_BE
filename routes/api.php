@@ -35,3 +35,4 @@ Route::middleware('auth:sanctum')->group(function () {
 // DELETE THE ROUTE BELOW WHEN COMPLETED
 Route::get('/template/{template}', [UserController::class, 'GetTemplate']);
 Route::post('/{template}/ava', [UserController::class, 'EditAvatar']);
+Route::get('/allTemplate', [UserController::class, 'GetAllTemplate']);
