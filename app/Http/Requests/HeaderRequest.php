@@ -23,7 +23,7 @@ class HeaderRequest extends FormRequest
     {
         return [
             'title' => 'required|string',
-            'logo' => 'required|string|max:255',
+            'logo' => 'required|string|max:3|min:3',
         ];
     }
 

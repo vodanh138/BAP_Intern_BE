@@ -143,13 +143,8 @@ class TemplateService implements TemplateServiceInterface
     }
     public function cloneTemplate($template, $request)
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string',
-        ]);
-        if ($validator->fails())
-            return $this->responseFail($validator->errors(), 422);
-        $template = $this->templateRepository->getATemplateByName($request->name);
-        if ($template)
+        $template1 = $this->templateRepository->getATemplateByName($request->name);
+        if ($template1)
             return $this->responseFail("Template's name must be unique");
         DB::beginTransaction();
 
@@ -177,10 +172,10 @@ class TemplateService implements TemplateServiceInterface
 
     public function getAllTemplates()
     {
-        $user = Auth::user();
+        //$user = Auth::user();
         $show = $this->showRepository->getShow();
         return $this->responseSuccess([
-            'username' => $user->username,
+            'username' => '$user->username',
             'chosen' => $show->template_id,
             'templates' => $this->templateRepository->getAllTemplate(),
         ]);
