@@ -6,33 +6,33 @@ use App\Http\Controllers\UserController;
 Route::get('/not-authorized', function () {
     return $this->responseFail('Unauthorized, Please Login.',401);
 })->name('login');
-Route::post('/loginProcessing', [UserController::class, 'LoginProcessing']);
-Route::get('/clientView', [UserController::class, 'Show']);
+Route::post('/login', [UserController::class, 'LoginProcessing']);
+Route::get('/client', [UserController::class, 'Show']);
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/allTemplate', [UserController::class, 'GetAllTemplate']);
-    Route::get('/template/{template}', [UserController::class, 'GetTemplate']);
+    Route::get('/all-template', [UserController::class, 'GetAllTemplate']);
+    Route::get('/templates/{template}', [UserController::class, 'GetTemplate']);
     Route::post('/logout', [UserController::class, 'logout'])->name('logout');
 
     Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
-        Route::post('/template', [UserController::class, 'AddTemplate']);
-        Route::post('/template/{template}', [UserController::class, 'CloneTemplate']);
-        Route::post('/{template}/section', [UserController::class, 'AddSection']);
-        Route::put('/template/{template}', [UserController::class, 'EditTemplate']);
-        Route::delete('/template', [UserController::class, 'DeleteTemplate']);
-        Route::delete('/section/{section}', [UserController::class, 'DeleteSection']);
+        Route::post('/templates', [UserController::class, 'AddTemplate']);
+        Route::post('/templates/{template}', [UserController::class, 'CloneTemplate']);
+        Route::post('/{template}/sections', [UserController::class, 'AddSection']);
+        Route::put('/templates/{template}', [UserController::class, 'EditTemplate']);
+        Route::delete('/templates', [UserController::class, 'DeleteTemplate']);
+        Route::delete('/sections/{section}', [UserController::class, 'DeleteSection']);
         Route::put('/show/{template}', [UserController::class, 'ChangeTemplate']);
-        Route::put('/{template}/section/{section}', [UserController::class, 'EditSection']);
-        Route::put('/template/{templateId}/header', [UserController::class, 'EditHeader']);
-        Route::put('/template/{templateId}/footer', [UserController::class, 'EditFooter']);
+        Route::put('/{template}/sections/{section}', [UserController::class, 'EditSection']);
+        Route::put('/templates/{templateId}/header', [UserController::class, 'EditHeader']);
+        Route::put('/templates/{templateId}/footer', [UserController::class, 'EditFooter']);
         Route::post('/{template}/ava', [UserController::class, 'EditAvatar']);
     });
 });
 
 // DELETE THE ROUTE BELOW WHEN COMPLETED
-Route::get('/template/{template}', [UserController::class, 'GetTemplate']);
+Route::get('/templates/{template}', [UserController::class, 'GetTemplate']);
 Route::post('/{template}/ava', [UserController::class, 'EditAvatar']);
-Route::get('/allTemplate', function () {
+Route::get('/all-template', function () {
     $show = $this->showRepository->getShow();
         return $this->responseSuccess([
             'username' => '$user->username',
