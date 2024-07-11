@@ -32,11 +32,4 @@ Route::middleware('auth:sanctum')->group(function () {
 // DELETE THE ROUTE BELOW WHEN COMPLETED
 Route::get('/templates/{template}', [UserController::class, 'GetTemplate']);
 Route::post('/{template}/ava', [UserController::class, 'EditAvatar']);
-Route::get('/all-template', function () {
-    $show = $this->showRepository->getShow();
-        return $this->responseSuccess([
-            'username' => '$user->username',
-            'chosen' => $show->template_id,
-            'templates' => $this->templateRepository->getAllTemplate(),
-        ]);
-});
+Route::get('/all-template', [UserController::class, 'GetAllTemplate']);
