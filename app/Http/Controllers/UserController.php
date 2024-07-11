@@ -1,9 +1,14 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AvatarRequest;
+use App\Http\Requests\FooterRequest;
+use App\Http\Requests\HeaderRequest;
+use App\Http\Requests\LoginRequest;
+use App\Http\Requests\SectionRequest;
+use App\Http\Requests\TemplateRequest;
 use Illuminate\Http\Request;
 use App\Models\Template;
-use Illuminate\Support\Facades\Validator;
 use App\Models\Section;
 use App\Services\Interfaces\TemplateServiceInterface;
 use App\Traits\ApiResponse;
@@ -17,15 +22,8 @@ class UserController extends Controller
         $this->templateService = $templateService;
     }
 
-    public function LoginProcessing(Request $request)
+    public function LoginProcessing(LoginRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'username' => 'required|string',
-            'password' => 'required',
-        ]);
-        if ($validator->fails()) {
-            return $this->responseFail($validator->errors(),422);
-        }
         return $this->templateService->loginProcessing($request->username, $request->password);
     }
     public function logout(Request $request)
@@ -38,12 +36,12 @@ class UserController extends Controller
         }
     }
 
-    public function AddTemplate(Request $request)
+    public function AddTemplate(TemplateRequest $request)
     {
         return $this->templateService->addTemplate($request);
     }
 
-    public function EditTemplate(Request $request, Template $template)
+    public function EditTemplate(TemplateRequest $request, Template $template)
     {
         return $this->templateService->editTemplate($request, $template);
     }
@@ -85,21 +83,21 @@ class UserController extends Controller
     {
         return $this->templateService->deleteSection($section);
     }
-    public function EditSection(Request $request, Template $template, Section $section)
+    public function EditSection(SectionRequest $request, Template $template, Section $section)
     {
         return $this->templateService->editSection($request, $section);
     }
 
-    public function EditHeader(Request $request, $templateId)
+    public function EditHeader(HeaderRequest $request, $templateId)
     {
         return $this->templateService->editHeader($request, $templateId);
     }
 
-    public function EditFooter(Request $request, $templateId)
+    public function EditFooter(FooterRequest $request, $templateId)
     {
         return $this->templateService->editFooter($request, $templateId);
     }
-    public function EditAvatar(Template $template, Request $request)
+    public function EditAvatar(Template $template, AvatarRequest $request)
     {
         return $this->templateService->editAvatar($request, $template);
     }

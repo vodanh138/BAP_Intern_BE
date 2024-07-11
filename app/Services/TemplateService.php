@@ -55,11 +55,6 @@ class TemplateService implements TemplateServiceInterface
     }
     public function addTemplate($request)
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string',
-        ]);
-        if ($validator->fails())
-            return $this->responseFail($validator->errors(), 422);
         $template = $this->templateRepository->getATemplateByName($request->name);
         if ($template)
             return $this->responseFail("Template's name must be unique");
@@ -83,11 +78,6 @@ class TemplateService implements TemplateServiceInterface
 
     public function editTemplate($request, $template)
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string',
-        ]);
-        if ($validator->fails())
-            return $this->responseFail($validator->errors(), 422);
         $template->update([
             'name' => $request->name,
         ]);
@@ -225,12 +215,6 @@ class TemplateService implements TemplateServiceInterface
     }
     public function editSection($request, $Section)
     {
-        $validator = Validator::make($request->all(), [
-            'type' => 'required|integer|max:2|min:1',
-            'title' => 'required|string',
-        ]);
-        if ($validator->fails())
-            return $this->responseFail($validator->errors(), 422);
         $Section->update([
             'type' => $request->type,
             'title' => $request->title,
@@ -251,14 +235,6 @@ class TemplateService implements TemplateServiceInterface
 
     public function editHeader($request, $templateId)
     {
-        $validator = Validator::make($request->all(), [
-            'title' => 'required|string',
-            'logo' => 'required|string|max:3|min:3'
-        ]);
-
-        if ($validator->fails())
-            return $this->responseFail($validator->errors(), 422);
-
         $template = $this->templateRepository->getATemplate($templateId);
 
         if (!$template)
@@ -275,13 +251,6 @@ class TemplateService implements TemplateServiceInterface
 
     public function editFooter($request, $templateId)
     {
-        $validator = Validator::make($request->all(), [
-            'footer' => 'required|string',
-        ]);
-
-        if ($validator->fails())
-            return $this->responseFail($validator->errors(), 422);
-
         $template = $this->templateRepository->getATemplate($templateId);
 
         if (!$template)
@@ -297,12 +266,6 @@ class TemplateService implements TemplateServiceInterface
     }
     public function editAvatar($request, $template)
     {
-        $validator = Validator::make($request->all(), [
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
-        ]);
-        if ($validator->fails())
-            return $this->responseFail($validator->errors(), 422);
-
         if ($request->hasFile('image')) {
             $image = $request->file('image');
             $imageName = '/storage/' . time() . '.' . $image->getClientOriginalExtension();
