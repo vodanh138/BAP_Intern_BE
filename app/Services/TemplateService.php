@@ -9,9 +9,11 @@ use App\Repositories\Interfaces\UserRepositoryInterface;
 use App\Repositories\Interfaces\ShowRepositoryInterface;
 use App\Repositories\Interfaces\SectionRepositoryInterface;
 use App\Repositories\Interfaces\RoleRepositoryInterface;
+use App\Traits\ApiResponse;
 
 class TemplateService implements TemplateServiceInterface
 {
+    use ApiResponse;
     protected $templateRepository;
     protected $userRepository;
     protected $showRepository;
@@ -38,25 +40,16 @@ class TemplateService implements TemplateServiceInterface
             try {
                 $token = $user->createToken('auth_token')->plainTextToken;
             } catch (\Exception $e) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Some errors have occurred while generating token',
-                    'error' => $e->getMessage()
-                ]);
+                return $this->responseFail($e->getMessage());
             }
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Log in successfully',
+            return $this->responseSuccess([
                 'access_token' => $token,
                 'token_type' => 'Bearer',
                 'username' => $user->username,
                 'role' => $user->hasRole('admin') ? 'ADMIN' : 'USER',
-            ]);
+            ], 'Log in successfully');
         } else {
-            return response()->json([
-                'status' => 'fail',
-                'message' => 'Username or password incorect',
-            ]);
+            return $this->responseFail('Username or password incorect');
         }
     }
     public function addTemplate($request)
@@ -64,34 +57,20 @@ class TemplateService implements TemplateServiceInterface
         $validator = Validator::make($request->all(), [
             'name' => 'required|string',
         ]);
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => 'fail',
-                'message' => $validator->errors()
-            ], 422);
-        }
+        if ($validator->fails())
+            return $this->responseFail($validator->errors(), 422);
         $template = $this->templateRepository->getATemplateByName($request->name);
         if ($template)
-            return response()->json([
-                'status' => 'fail',
-                'message' => "Template's name must be unique",
-            ]);
+            return $this->responseFail("Template's name must be unique");
         $template = $this->templateRepository->createTemplate($request->name, 'lg', 'default-title', 'default-footer', '/images/default-ava.png');
         if (!$template)
-            return response()->json([
-                'status' => 'fail',
-                'message' => 'Failed to create template in database',
-            ]);
+            return $this->responseFail('Failed to create template in database');
         if (!$this->addSection($template->id))
-            return response()->json([
-                'status' => 'fail',
-                'message' => 'Failed to create section in database',
-            ]);
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Create template successfully',
+            return $this->responseFail('Failed to create section in database');
+
+        return $this->responseSuccess([
             'template' => $template,
-        ]);
+        ], 'Create template successfully');
     }
 
     public function editTemplate($request, $template)
@@ -99,21 +78,14 @@ class TemplateService implements TemplateServiceInterface
         $validator = Validator::make($request->all(), [
             'name' => 'required|string',
         ]);
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => 'fail',
-                'message' => $validator->errors()
-            ], 422);
-        }
+        if ($validator->fails())
+            return $this->responseFail($validator->errors(), 422);
         $template->update([
             'name' => $request->name,
         ]);
-
-        return response()->json([
-            'status' => 'success',
-            'message' => "Edit template's name successfully",
+        return $this->responseSuccess([
             'template' => $template,
-        ]);
+        ], "Edit template's name successfully");
     }
 
     public function deleteTemplate($templateIds)
@@ -121,24 +93,14 @@ class TemplateService implements TemplateServiceInterface
         if (is_string($templateIds)) {
             $templateIds = explode(',', $templateIds);
         }
-        if (!is_array($templateIds)) {
-            return response()->json([
-                'status' => 'fail',
-                'message' => 'Invalid template_ids format.'
-            ], 400);
-        }
+        if (!is_array($templateIds))
+            return $this->responseFail('Invalid template_ids format.', 400);
         $show = $this->showRepository->getShow();
         foreach ($templateIds as $templateId) {
             if (!$this->templateRepository->getATemplate($templateId))
-                return response()->json([
-                    'status' => 'fail',
-                    'message' => 'Template ' . $templateId . ' not found',
-                ]);
+                return $this->responseFail('Template ' . $templateId . ' not found');
             if ($templateId == $show->template_id)
-                return response()->json([
-                    'status' => 'fail',
-                    'message' => 'Cannot delete template ' . $templateId . '(chosen template)',
-                ]);
+                return $this->responseFail('Cannot delete template ' . $templateId . '(chosen template)');
         }
         $template = '';
         foreach ($templateIds as $templateId) {
@@ -146,48 +108,33 @@ class TemplateService implements TemplateServiceInterface
             $template .= $templateId . ',';
         }
         $template = rtrim($template, ',');
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Template ' . $template . ' deleted successfully',
-        ]);
+        return $this->responseSuccess([], 'Template ' . $template . ' deleted successfully');
     }
 
     public function show()
     {
         $show = $this->showRepository->getShow();
-        if (!$show) {
-            return response()->json([
-                'status' => 'fail',
-                'message' => 'There is nothing to show'
-            ]);
-        }
+        if (!$show) 
+            return $this->responseFail('There is nothing to show');
         $chosenTemplate = $this->templateRepository->getATemplate($show->template_id);
-        if (!$chosenTemplate) {
-            return response()->json([
-                'status' => 'fail',
-                'message' => 'No template have been chosen'
-            ]);
-        }
+        if (!$chosenTemplate)
+            return $this->responseFail('No template have been chosen');
         $query = $this->sectionRepository->selectSectionBelongTo($chosenTemplate->id)->get();
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Show successfully',
+        return $this->responseSuccess([
             'id' => $chosenTemplate->id,
             'logo' => $chosenTemplate->logo,
             'title' => $chosenTemplate->title,
             'footer' => $chosenTemplate->footer,
             'ava_path' => $chosenTemplate->ava_path,
             'section' => $query,
-        ]);
+        ], 'Show successfully');
     }
 
     public function getTemplate($template)
     {
         $query = $this->sectionRepository->selectSectionBelongTo($template->id)->get();
-
-        return response()->json([
-            'status' => 'success',
+        return $this->responseSuccess([
             'id' => $template->id,
             'logo' => $template->logo,
             'title' => $template->title,
@@ -201,43 +148,32 @@ class TemplateService implements TemplateServiceInterface
         $validator = Validator::make($request->all(), [
             'name' => 'required|string',
         ]);
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => 'fail',
-                'message' => $validator->errors()
-            ], 422);
-        }
+        if ($validator->fails())
+            return $this->responseFail($validator->errors(), 422);
+        $template = $this->templateRepository->getATemplateByName($request->name);
+        if ($template)
+            return $this->responseFail("Template's name must be unique");
         $newtemplate = $this->templateRepository->createTemplate($request->name, $template->logo, $template->title, $template->footer, $template->ava_path);
         if (!$newtemplate)
-            return response()->json([
-                'status' => 'fail',
-                'message' => 'Failed to create template in database',
-            ]);
+            return $this->responseFail('Failed to create template in database');
         try {
             $this->sectionRepository->selectSectionBelongTo($template->id)->get()->map(function ($section) use ($newtemplate) {
                 $this->sectionRepository->createSection($section->type, $section->title, $section->content1, $section->content2, $newtemplate->id);
             });
         } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Some errors have occurred while copying template',
-                'error' => $e->getMessage()
-            ], 500);
+            return $this->responseFail($e->getMessage(),500);
         }
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Clone template successfully',
+        return $this->responseSuccess([
             'template' => $this->getTemplate($newtemplate)->original,
-        ]);
+        ],'Clone template successfully');
     }
 
     public function getAllTemplates()
     {
-        //$user = Auth::user();
+        $user = Auth::user();
         $show = $this->showRepository->getShow();
-        return response()->json([
-            'status' => 'success',
-            'username' => '$user->username',
+        return $this->responseSuccess([
+            'username' => $user->username,
             'chosen' => $show->template_id,
             'templates' => $this->templateRepository->getAllTemplate(),
         ]);
@@ -246,38 +182,29 @@ class TemplateService implements TemplateServiceInterface
     public function changeTemplate($template)
     {
         $show = $this->showRepository->getShow();
-        $show->template_id = $template->id;
-        $show->save();
+        $show->update([
+            'template_id' => $template->id,
+        ]);
         return $this->getTemplate($template);
     }
     public function addSection($template_id)
     {
         $section = $this->sectionRepository->createSection(1, 'default-title', 'default-content1', '', $template_id);
         if (!$section)
-            return response()->json([
-                'status' => 'fail',
-                'message' => 'Failed to create section in database',
-            ]);
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Add section successfully',
+            return $this->responseFail('Failed to create section in database');
+        return $this->responseSuccess([
             'section' => $section,
-        ]);
+        ],'Add section successfully');
     }
     public function deleteSection($section)
     {
         $count = $this->sectionRepository->selectSectionBelongTo($section->template_id)->count();
         if ($count === 1)
-            return response()->json([
-                'status' => 'fail',
-                'message' => 'Cannot delete the only section'
-            ]);
+            return $this->responseFail('Cannot delete the only section');
 
         $section->delete();
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Section deleted successfully'
-        ]);
+
+        return $this->responseSuccess([],'Section deleted successfully');
     }
     public function editSection($request, $Section)
     {
@@ -285,12 +212,8 @@ class TemplateService implements TemplateServiceInterface
             'type' => 'required|integer|max:2|min:1',
             'title' => 'required|string',
         ]);
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => 'fail',
-                'message' => $validator->errors()
-            ], 422);
-        }
+        if ($validator->fails())
+            return $this->responseFail($validator->errors(), 422);
         $Section->update([
             'type' => $request->type,
             'title' => $request->title,
@@ -304,11 +227,9 @@ class TemplateService implements TemplateServiceInterface
             $Section->update([
                 'content2' => '',
             ]);
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Edit template successfully',
+        return $this->responseSuccess([
             'section' => $Section,
-        ]);
+        ],'Edit template successfully');
     }
 
     public function editHeader($request, $templateId)
@@ -318,32 +239,21 @@ class TemplateService implements TemplateServiceInterface
             'logo' => 'required|string|max:3|min:3'
         ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => 'fail',
-                'message' => $validator->errors()
-            ], 422);
-        }
+        if ($validator->fails())
+            return $this->responseFail($validator->errors(), 422);
 
         $template = $this->templateRepository->getATemplate($templateId);
 
-        if (!$template) {
-            return response()->json([
-                'status' => 'fail',
-                'message' => 'Template not found',
-            ], 404);
-        }
-
+        if (!$template) 
+            return $this->responseFail('Template not found', 404);
         $template->update([
             'title' => $request->title,
             'logo' => $request->logo,
         ]);
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Header updated successfully',
+        return $this->responseSuccess([
             'template' => $template,
-        ]);
+        ],'Header updated successfully');
+        
     }
 
     public function editFooter($request, $templateId)
@@ -352,70 +262,47 @@ class TemplateService implements TemplateServiceInterface
             'footer' => 'required|string',
         ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => 'fail',
-                'message' => $validator->errors()
-            ], 422);
-        }
+        if ($validator->fails())
+            return $this->responseFail($validator->errors(), 422);
 
         $template = $this->templateRepository->getATemplate($templateId);
 
-        if (!$template) {
-            return response()->json([
-                'status' => 'fail',
-                'message' => 'Template not found',
-            ], 404);
-        }
+        if (!$template) 
+            return $this->responseFail('Template not found', 404);
 
         $template->update([
             'footer' => $request->footer,
         ]);
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Footer updated successfully',
+        return $this->responseSuccess([
             'template' => $template,
-        ]);
+        ],'Footer updated successfully');
     }
     public function editAvatar($request, $template)
     {
         $validator = Validator::make($request->all(), [
             'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => 'fail',
-                'message' => $validator->errors()
-            ], 422);
-        }
+        if ($validator->fails())
+            return $this->responseFail($validator->errors(), 422);
 
         if ($request->hasFile('image')) {
             $image = $request->file('image');
-            $imageName = '/storage/'.time() . '.' . $image->getClientOriginalExtension();
+            $imageName = '/storage/' . time() . '.' . $image->getClientOriginalExtension();
 
             $oldImage = $template->ava_path;
             if ($oldImage) {
                 $oldImagePath = public_path('storage') . '/' . $oldImage;
-                if (file_exists($oldImagePath)) {
+                if (file_exists($oldImagePath))
                     unlink($oldImagePath);
-                }
             }
 
             $image->move(public_path('storage'), $imageName);
             $template->update([
                 'ava_path' => $imageName,
             ]);
-
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Change Avatar successfully',
-            ]);
+            return $this->responseSuccess('Change Avatar successfully');
         }
-
-        return response()->json([
-            'status' => 'fail',
-            'message' => 'Failed to change Avatar',
-        ]);
+        return $this->responseFail('Failed to change Avatar');
     }
 }

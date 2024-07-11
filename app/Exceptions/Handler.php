@@ -5,9 +5,11 @@ namespace App\Exceptions;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Throwable;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use App\Traits\ApiResponse;
 
 class Handler extends ExceptionHandler
 {
+    use ApiResponse;
     /**
      * A list of exception types with their corresponding custom log levels.
      *
@@ -48,17 +50,10 @@ class Handler extends ExceptionHandler
     }
     public function render($request, Throwable $exception)
     {
-        if ($exception instanceof ModelNotFoundException) {
-            return response()->json([
-                'status' => 'fail',
-                'message' => 'Resource not found'
-            ], 404);
-        }
+        if ($exception instanceof ModelNotFoundException)
+            return $this->responseFail('Resource not found',404);
         if ($exception instanceof \Illuminate\Database\QueryException) {
-            return response()->json([
-                'status' => 'fail',
-                'message' => 'Some errors occurred',
-            ]);
+            return $this->responseFail('Some errors occurred while querying');
         }
 
         return parent::render($request, $exception);
