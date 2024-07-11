@@ -10,6 +10,7 @@ use App\Repositories\Interfaces\ShowRepositoryInterface;
 use App\Repositories\Interfaces\SectionRepositoryInterface;
 use App\Repositories\Interfaces\RoleRepositoryInterface;
 use App\Traits\ApiResponse;
+use Illuminate\Support\Facades\DB;
 
 class TemplateService implements TemplateServiceInterface
 {
@@ -62,12 +63,19 @@ class TemplateService implements TemplateServiceInterface
         $template = $this->templateRepository->getATemplateByName($request->name);
         if ($template)
             return $this->responseFail("Template's name must be unique");
-        $template = $this->templateRepository->createTemplate($request->name, 'lg', 'default-title', 'default-footer', '/images/default-ava.png');
-        if (!$template)
-            return $this->responseFail('Failed to create template in database');
-        if (!$this->addSection($template->id))
-            return $this->responseFail('Failed to create section in database');
+        DB::beginTransaction();
 
+        try {
+            $template = $this->templateRepository->createTemplate($request->name, 'lg', 'default-title', 'default-footer', '/images/default-ava.png');
+            if (!$template)
+                return $this->responseFail('Failed to create template in database');
+            if (!$this->addSection($template->id))
+                return $this->responseFail('Failed to create section in database');
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollback();
+            return $this->responseFail('Some error orcurr when adding template', 500);
+        }
         return $this->responseSuccess([
             'template' => $template,
         ], 'Create template successfully');
@@ -114,7 +122,7 @@ class TemplateService implements TemplateServiceInterface
     public function show()
     {
         $show = $this->showRepository->getShow();
-        if (!$show) 
+        if (!$show)
             return $this->responseFail('There is nothing to show');
         $chosenTemplate = $this->templateRepository->getATemplate($show->template_id);
         if (!$chosenTemplate)
@@ -153,19 +161,28 @@ class TemplateService implements TemplateServiceInterface
         $template = $this->templateRepository->getATemplateByName($request->name);
         if ($template)
             return $this->responseFail("Template's name must be unique");
-        $newtemplate = $this->templateRepository->createTemplate($request->name, $template->logo, $template->title, $template->footer, $template->ava_path);
-        if (!$newtemplate)
-            return $this->responseFail('Failed to create template in database');
+        DB::beginTransaction();
+
         try {
-            $this->sectionRepository->selectSectionBelongTo($template->id)->get()->map(function ($section) use ($newtemplate) {
-                $this->sectionRepository->createSection($section->type, $section->title, $section->content1, $section->content2, $newtemplate->id);
-            });
+            $newtemplate = $this->templateRepository->createTemplate($request->name, $template->logo, $template->title, $template->footer, $template->ava_path);
+            if (!$newtemplate)
+                return $this->responseFail('Failed to create template in database');
+            try {
+                $this->sectionRepository->selectSectionBelongTo($template->id)->get()->map(function ($section) use ($newtemplate) {
+                    $this->sectionRepository->createSection($section->type, $section->title, $section->content1, $section->content2, $newtemplate->id);
+                });
+            } catch (\Exception $e) {
+                return $this->responseFail($e->getMessage(), 500);
+            }
+            DB::commit();
         } catch (\Exception $e) {
-            return $this->responseFail($e->getMessage(),500);
+            DB::rollback();
+            return $this->responseFail('Some error orcurr when copying template', 500);
         }
+
         return $this->responseSuccess([
             'template' => $this->getTemplate($newtemplate)->original,
-        ],'Clone template successfully');
+        ], 'Clone template successfully');
     }
 
     public function getAllTemplates()
@@ -194,7 +211,7 @@ class TemplateService implements TemplateServiceInterface
             return $this->responseFail('Failed to create section in database');
         return $this->responseSuccess([
             'section' => $section,
-        ],'Add section successfully');
+        ], 'Add section successfully');
     }
     public function deleteSection($section)
     {
@@ -204,7 +221,7 @@ class TemplateService implements TemplateServiceInterface
 
         $section->delete();
 
-        return $this->responseSuccess([],'Section deleted successfully');
+        return $this->responseSuccess([], 'Section deleted successfully');
     }
     public function editSection($request, $Section)
     {
@@ -229,7 +246,7 @@ class TemplateService implements TemplateServiceInterface
             ]);
         return $this->responseSuccess([
             'section' => $Section,
-        ],'Edit template successfully');
+        ], 'Edit template successfully');
     }
 
     public function editHeader($request, $templateId)
@@ -244,7 +261,7 @@ class TemplateService implements TemplateServiceInterface
 
         $template = $this->templateRepository->getATemplate($templateId);
 
-        if (!$template) 
+        if (!$template)
             return $this->responseFail('Template not found', 404);
         $template->update([
             'title' => $request->title,
@@ -252,8 +269,8 @@ class TemplateService implements TemplateServiceInterface
         ]);
         return $this->responseSuccess([
             'template' => $template,
-        ],'Header updated successfully');
-        
+        ], 'Header updated successfully');
+
     }
 
     public function editFooter($request, $templateId)
@@ -267,7 +284,7 @@ class TemplateService implements TemplateServiceInterface
 
         $template = $this->templateRepository->getATemplate($templateId);
 
-        if (!$template) 
+        if (!$template)
             return $this->responseFail('Template not found', 404);
 
         $template->update([
@@ -276,7 +293,7 @@ class TemplateService implements TemplateServiceInterface
 
         return $this->responseSuccess([
             'template' => $template,
-        ],'Footer updated successfully');
+        ], 'Footer updated successfully');
     }
     public function editAvatar($request, $template)
     {
