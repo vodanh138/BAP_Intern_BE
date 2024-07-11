@@ -4,10 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 
 Route::get('/not-authorized', function () {
-    return response()->json([
-        'status' => 'fail',
-        'message' => 'Unauthorized, Please Login.'
-    ], 401);
+    return $this->responseFail('Unauthorized, Please Login.',401);
 })->name('login');
 Route::post('/loginProcessing', [UserController::class, 'LoginProcessing']);
 Route::get('/clientView', [UserController::class, 'Show']);
@@ -35,4 +32,11 @@ Route::middleware('auth:sanctum')->group(function () {
 // DELETE THE ROUTE BELOW WHEN COMPLETED
 Route::get('/template/{template}', [UserController::class, 'GetTemplate']);
 Route::post('/{template}/ava', [UserController::class, 'EditAvatar']);
-Route::get('/allTemplate', [UserController::class, 'GetAllTemplate']);
+Route::get('/allTemplate', function () {
+    $show = $this->showRepository->getShow();
+        return $this->responseSuccess([
+            'username' => '$user->username',
+            'chosen' => $show->template_id,
+            'templates' => $this->templateRepository->getAllTemplate(),
+        ]);
+});

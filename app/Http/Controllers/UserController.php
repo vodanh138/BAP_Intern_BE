@@ -6,9 +6,11 @@ use App\Models\Template;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Section;
 use App\Services\Interfaces\TemplateServiceInterface;
+use App\Traits\ApiResponse;
 
 class UserController extends Controller
 {
+    use ApiResponse;
     protected $templateService;
     public function __construct(TemplateServiceInterface $templateService)
     {
@@ -22,10 +24,7 @@ class UserController extends Controller
             'password' => 'required',
         ]);
         if ($validator->fails()) {
-            return response()->json([
-                'status' => 'fail',
-                'message' => $validator->errors()
-            ], 422);
+            return $this->responseFail($validator->errors(),422);
         }
         return $this->templateService->loginProcessing($request->username, $request->password);
     }
@@ -33,16 +32,9 @@ class UserController extends Controller
     {
         try {
             $request->user()->currentAccessToken()->delete();
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Logged out successfully'
-            ]);
+            return $this->responseSuccess([],'Logged out successfully');
         } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Failed to log out',
-                'error' => $e->getMessage()
-            ], 500);
+            return $this->responseFail($e->getMessage(), 500);
         }
     }
 
