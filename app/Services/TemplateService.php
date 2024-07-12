@@ -44,6 +44,7 @@ class TemplateService implements TemplateServiceInterface
                 return $this->responseFail($e->getMessage());
             }
             return $this->responseSuccess([
+                'status' => 'success',
                 'access_token' => $token,
                 'token_type' => 'Bearer',
                 'username' => $user->username,
