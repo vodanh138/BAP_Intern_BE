@@ -29,8 +29,8 @@ class TemplateRequest extends FormRequest
     public function messages()
     {
         return [
-            'name.required' => 'Template name is required.',
-            'name.unique' => 'Template name already exists.',
+            'name.required' => __('validation.required'),
+            'name.unique' => __('validation.unique'),
         ];
     }
 }
