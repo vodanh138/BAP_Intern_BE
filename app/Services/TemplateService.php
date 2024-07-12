@@ -237,7 +237,6 @@ class TemplateService implements TemplateServiceInterface
             return $this->responseFail('Template not found', 404);
         $template->update([
             'title' => $request->title,
-            'logo' => $request->logo,
         ]);
         return $this->responseSuccess([
             'template' => $template,
