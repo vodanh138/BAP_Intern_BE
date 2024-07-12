@@ -173,10 +173,10 @@ class TemplateService implements TemplateServiceInterface
 
     public function getAllTemplates()
     {
-        //$user = Auth::user();
+        $user = Auth::user();
         $show = $this->showRepository->getShow();
         return $this->responseSuccess([
-            'username' => '$user->username',
+            'username' => $user->username,
             'chosen' => $show->template_id,
             'templates' => $this->templateRepository->getAllTemplate(),
         ]);
