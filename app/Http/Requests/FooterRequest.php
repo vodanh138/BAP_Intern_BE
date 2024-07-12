@@ -29,7 +29,7 @@ class FooterRequest extends FormRequest
     public function messages()
     {
         return [
-            'footer.required' => 'Footer is required',
+            'footer.required' => __('validation.required'),
         ];
     }
 }

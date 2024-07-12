@@ -32,8 +32,8 @@ class SectionRequest extends FormRequest
     public function messages()
     {
         return [
-            'type.required' => 'Section type is required',
-            'title.required' => 'Section title is required',
+            'type.required' => __('validation.required'),
+            'title.required' => __('validation.required'),
         ];
     }
 }

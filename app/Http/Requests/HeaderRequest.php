@@ -23,15 +23,13 @@ class HeaderRequest extends FormRequest
     {
         return [
             'title' => 'required|string',
-            //'logo' => 'required|string|max:3|min:3',
         ];
     }
 
     public function messages()
     {
         return [
-            'title.required' => 'Title is required',
-            'logo.required' => 'Logo is required',
+            'title.required' => __('validation.required'),
         ];
     }
 }

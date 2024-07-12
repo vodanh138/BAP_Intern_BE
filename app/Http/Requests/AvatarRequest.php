@@ -29,10 +29,10 @@ class AvatarRequest extends FormRequest
     public function messages()
     {
         return [
-            'image.required' => 'Image is required',
-            'image.image' => 'The file must be an image',
-            'image.mimes' => 'The image must be a file of type: jpeg, png, jpg, gif',
-            'image.max' => 'The image may not be greater than 2048 kilobytes',
+            'image.required' => __('validation.required'),
+            'image.image' => __('validation.image'),
+            'image.mimes' => __('validation.mimes'),
+            'image.max' => __('validation.max'),
         ];
     }
 }
