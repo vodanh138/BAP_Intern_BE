@@ -4,12 +4,12 @@ namespace App\Services\Interfaces;
 
 interface TemplateServiceInterface
 {
-    public function loginProcessing($username,$password);
+    public function loginProcessing($username, $password);
     public function addTemplate($request);
     public function deleteTemplate($template);
     public function show();
     public function getTemplate($template);
-    public function cloneTemplate($template,$request);
+    public function cloneTemplate($template, $request);
     public function getAllTemplates();
     public function changeTemplate($template);
     public function addSection($template_id);

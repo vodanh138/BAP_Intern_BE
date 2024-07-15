@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Http\Requests\AvatarRequest;
@@ -16,13 +17,14 @@ use App\Traits\ApiResponse;
 class UserController extends Controller
 {
     use ApiResponse;
+
     protected $templateService;
     public function __construct(TemplateServiceInterface $templateService)
     {
         $this->templateService = $templateService;
     }
 
-    public function LoginProcessing(LoginRequest $request)
+    public function loginProcessing(LoginRequest $request)
     {
         return $this->templateService->loginProcessing($request->username, $request->password);
     }
@@ -36,63 +38,63 @@ class UserController extends Controller
         }
     }
 
-    public function AddTemplate(TemplateRequest $request)
+    public function addTemplate(TemplateRequest $request)
     {
         return $this->templateService->addTemplate($request);
     }
 
-    public function DeleteTemplate(Request $request)
+    public function deleteTemplate(Request $request)
     {
         $templateIds = $request->input('templateId', []);
         return $this->templateService->deleteTemplate($templateIds);
     }
 
-    public function Show()
+    public function show()
     {
         return $this->templateService->show();
     }
-    public function CloneTemplate(Template $template, Request $request)
+    public function cloneTemplate(Template $template, Request $request)
     {
         return $this->templateService->cloneTemplate($template, $request);
     }
 
-    public function GetTemplate(Template $template)
+    public function getTemplate(Template $template)
     {
         return $this->templateService->getTemplate($template);
     }
 
-    public function GetAllTemplate()
+    public function getAllTemplate()
     {
         return $this->templateService->getAllTemplates();
     }
 
-    public function ChangeTemplate(Template $template)
+    public function changeTemplate(Template $template)
     {
         return $this->templateService->changeTemplate($template);
     }
-    public function AddSection(Template $template)
+    public function addSection(Template $template)
     {
         return $this->templateService->addSection($template->id);
     }
-    public function DeleteSection(Section $section)
+    public function deleteSection(Section $section)
     {
         return $this->templateService->deleteSection($section);
     }
-    public function EditSection(SectionRequest $request, Template $template, Section $section)
+    public function editSection(SectionRequest $request, Template $template, Section $section)
     {
         return $this->templateService->editSection($request, $section);
     }
 
-    public function EditHeader(HeaderRequest $request, $templateId)
+    public function editHeader(HeaderRequest $request, $templateId)
     {
         return $this->templateService->editHeader($request, $templateId);
     }
 
-    public function EditFooter(FooterRequest $request, $templateId)
+    public function editFooter(FooterRequest $request, $templateId)
     {
         return $this->templateService->editFooter($request, $templateId);
     }
-    public function EditAvatar(Template $template, AvatarRequest $request)
+    public function editAvatar(Template $template, AvatarRequest $request)
     {
         return $this->templateService->editAvatar($request, $template);
     }

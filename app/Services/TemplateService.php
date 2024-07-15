@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\DB;
 class TemplateService implements TemplateServiceInterface
 {
     use ApiResponse;
+
     protected $templateRepository;
     protected $userRepository;
     protected $showRepository;
@@ -57,15 +58,19 @@ class TemplateService implements TemplateServiceInterface
     public function addTemplate($request)
     {
         $template = $this->templateRepository->getATemplateByName($request->name);
-        if ($template)
+        if ($template) {
             return $this->responseFail(__('validation.unique'));
+        }
         DB::beginTransaction();
         try {
-            $template = $this->templateRepository->createTemplate($request->name, 'lg', 'default-title', 'default-footer', '/images/default-ava.png');
-            if (!$template)
+            $template = $this->templateRepository->
+            createTemplate($request->name, 'lg', 'default-title', 'default-footer', '/images/default-ava.png');
+            if (!$template) {
                 return $this->responseFail(__('messages.tempCreate-F'));
-            if (!$this->addSection($template->id))
+            }
+            if (!$this->addSection($template->id)) {
                 return $this->responseFail(__('messages.secCreate-F'));
+            }
             DB::commit();
         } catch (\Exception $e) {
             DB::rollback();
@@ -80,14 +85,17 @@ class TemplateService implements TemplateServiceInterface
         if (is_string($templateIds)) {
             $templateIds = explode(',', $templateIds);
         }
-        if (!is_array($templateIds))
+        if (!is_array($templateIds)) {
             return $this->responseFail('Invalid template_ids format.', 400);
+        }
         $show = $this->showRepository->getShow();
         foreach ($templateIds as $templateId) {
-            if (!$this->templateRepository->getATemplate($templateId))
+            if (!$this->templateRepository->getATemplate($templateId)) {
                 return $this->responseFail(__('messages.template') . $templateId . __('messages.notFound'), 404);
-            if ($templateId == $show->template_id)
+            }
+            if ($templateId == $show->template_id) {
                 return $this->responseFail(__('messages.cantDelTemp') . $templateId . __('messages.chosenTemp'));
+            }
         }
         $template = '';
         foreach ($templateIds as $templateId) {
@@ -101,11 +109,13 @@ class TemplateService implements TemplateServiceInterface
     public function show()
     {
         $show = $this->showRepository->getShow();
-        if (!$show)
+        if (!$show) {
             return $this->responseFail(__('messages.showNothing'));
+        }
         $chosenTemplate = $this->templateRepository->getATemplate($show->template_id);
-        if (!$chosenTemplate)
+        if (!$chosenTemplate) {
             return $this->responseFail(__('messages.noChosen'));
+        }
         $query = $this->sectionRepository->selectSectionBelongTo($chosenTemplate->id)->get();
 
         return $this->responseSuccess([
@@ -133,17 +143,27 @@ class TemplateService implements TemplateServiceInterface
     public function cloneTemplate($template, $request)
     {
         $template1 = $this->templateRepository->getATemplateByName($request->name);
-        if ($template1)
+        if ($template1) {
             return $this->responseFail(__('validation.unique'));
+        }
         DB::beginTransaction();
 
         try {
-            $newtemplate = $this->templateRepository->createTemplate($request->name, $template->logo, $template->title, $template->footer, $template->avaPath);
-            if (!$newtemplate)
+            $newtemplate = $this->templateRepository->
+            createTemplate($request->name, $template->logo, $template->title, $template->footer, $template->avaPath);
+            if (!$newtemplate) {
                 return $this->responseFail(__('messages.tempCreate-F'));
+            }
             try {
-                $this->sectionRepository->selectSectionBelongTo($template->id)->get()->map(function ($section) use ($newtemplate) {
-                    $this->sectionRepository->createSection($section->type, $section->title, $section->content1, $section->content2, $newtemplate->id);
+                $this->sectionRepository->
+                selectSectionBelongTo($template->id)->get()->map(function ($section) use ($newtemplate) {
+                    $this->sectionRepository->createSection(
+                        $section->type,
+                        $section->title,
+                        $section->content1,
+                        $section->content2,
+                        $newtemplate->id
+                    );
                 });
             } catch (\Exception $e) {
                 return $this->responseFail($e->getMessage(), 500);
@@ -167,7 +187,7 @@ class TemplateService implements TemplateServiceInterface
                 'username' => $user->username,
                 'chosen' => $show->template_id,
                 'templates' => $this->templateRepository->getAllTemplate(),
-            ],__('messages.allTemp-T'));
+            ], __('messages.allTemp-T'));
         } catch (\Exception $e) {
             return $this->responseFail(__('messages.allTemp-F'));
         }
@@ -188,7 +208,8 @@ class TemplateService implements TemplateServiceInterface
     public function addSection($template_id)
     {
         try {
-            $section = $this->sectionRepository->createSection(1, 'default-title', 'default-content1', '', $template_id);
+            $section = $this->sectionRepository->
+            createSection(1, 'default-title', 'default-content1', '', $template_id);
             return $this->responseSuccess([
                 'section' => $section,
             ], __('messages.secCreate-T'));
@@ -199,8 +220,9 @@ class TemplateService implements TemplateServiceInterface
     public function deleteSection($section)
     {
         $count = $this->sectionRepository->selectSectionBelongTo($section->template_id)->count();
-        if ($count === 1)
+        if ($count === 1) {
             return $this->responseFail(__('messages.delOnlySection'));
+        }
         try {
             $section->delete();
             return $this->responseSuccess([], __('messages.secDel-T'));
@@ -216,29 +238,30 @@ class TemplateService implements TemplateServiceInterface
                 'title' => $request->title,
                 'content1' => $request->input('content1', ''),
             ]);
-            if ($request->type == 2)
+            if ($request->type == 2) {
                 $Section->update([
                     'content2' => $request->input('content2', ''),
                 ]);
-            else
+            } else {
                 $Section->update([
                     'content2' => '',
                 ]);
+            }
             return $this->responseSuccess([
                 'section' => $Section,
             ], __('messages.secEdit-T'));
         } catch (\Exception $e) {
             return $this->responseFail(__('messages.secEdit-F'));
         }
-
     }
 
     public function editHeader($request, $templateId)
     {
         $template = $this->templateRepository->getATemplate($templateId);
 
-        if (!$template)
+        if (!$template) {
             return $this->responseFail(__('messages.template') . $templateId . __('messages.notFound'), 404);
+        }
         try {
             $template->update([
                 'title' => $request->title,
@@ -255,8 +278,9 @@ class TemplateService implements TemplateServiceInterface
     {
         $template = $this->templateRepository->getATemplate($templateId);
 
-        if (!$template)
+        if (!$template) {
             return $this->responseFail(__('messages.template') . $templateId . __('messages.notFound'), 404);
+        }
 
         try {
             $template->update([
@@ -280,8 +304,9 @@ class TemplateService implements TemplateServiceInterface
                 $oldImage = $template->avaPath;
                 if ($oldImage) {
                     $oldImagePath = public_path('images') . '/' . $oldImage;
-                    if (file_exists($oldImagePath))
+                    if (file_exists($oldImagePath)) {
                         unlink($oldImagePath);
+                    }
                 }
 
                 $image->move(public_path('images'), $imageName);

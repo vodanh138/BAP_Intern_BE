@@ -1,13 +1,12 @@
 <?php
 
 namespace App\Repositories;
+
 use App\Models\Section;
 use App\Repositories\Interfaces\SectionRepositoryInterface;
 
-
 class SectionRepository extends BaseRepository implements SectionRepositoryInterface
 {
- 
     public function model(): string
     {
         return Section::class;
