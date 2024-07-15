@@ -125,7 +125,7 @@ class TemplateService implements TemplateServiceInterface
             'logo' => $chosenTemplate->logo,
             'title' => $chosenTemplate->title,
             'footer' => $chosenTemplate->footer,
-            'ava_path' => $chosenTemplate->ava_path,
+            'avaPath' => $chosenTemplate->avaPath,
             'section' => $query,
         ], 'Show successfully');
     }
@@ -138,7 +138,7 @@ class TemplateService implements TemplateServiceInterface
             'logo' => $template->logo,
             'title' => $template->title,
             'footer' => $template->footer,
-            'ava_path' => $template->ava_path,
+            'avaPath' => $template->avaPath,
             'section' => $query,
         ]);
     }
@@ -150,7 +150,7 @@ class TemplateService implements TemplateServiceInterface
         DB::beginTransaction();
 
         try {
-            $newtemplate = $this->templateRepository->createTemplate($request->name, $template->logo, $template->title, $template->footer, $template->ava_path);
+            $newtemplate = $this->templateRepository->createTemplate($request->name, $template->logo, $template->title, $template->footer, $template->avaPath);
             if (!$newtemplate)
                 return $this->responseFail('Failed to create template in database');
             try {
@@ -265,7 +265,7 @@ class TemplateService implements TemplateServiceInterface
             $image = $request->file('image');
             $imageName = '/images/' . time() . '.' . $image->getClientOriginalExtension();
 
-            $oldImage = $template->ava_path;
+            $oldImage = $template->avaPath;
             if ($oldImage) {
                 $oldImagePath = public_path('images') . '/' . $oldImage;
                 if (file_exists($oldImagePath))
@@ -274,7 +274,7 @@ class TemplateService implements TemplateServiceInterface
 
             $image->move(public_path('images'), $imageName);
             $template->update([
-                'ava_path' => $imageName,
+                'avaPath' => $imageName,
             ]);
             return $this->responseSuccess('Change Avatar successfully');
         }

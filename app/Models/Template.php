@@ -14,7 +14,7 @@ class Template extends Model
         'logo',
         'title',
         'footer',
-        'ava_path',
+        'avaPath',
     ];
     public function user()
     {
