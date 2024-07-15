@@ -263,16 +263,16 @@ class TemplateService implements TemplateServiceInterface
     {
         if ($request->hasFile('image')) {
             $image = $request->file('image');
-            $imageName = '/storage/' . time() . '.' . $image->getClientOriginalExtension();
+            $imageName = '/images/' . time() . '.' . $image->getClientOriginalExtension();
 
             $oldImage = $template->ava_path;
             if ($oldImage) {
-                $oldImagePath = public_path('storage') . '/' . $oldImage;
+                $oldImagePath = public_path('images') . '/' . $oldImage;
                 if (file_exists($oldImagePath))
                     unlink($oldImagePath);
             }
 
-            $image->move(public_path('storage'), $imageName);
+            $image->move(public_path('images'), $imageName);
             $template->update([
                 'ava_path' => $imageName,
             ]);
