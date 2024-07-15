@@ -17,13 +17,15 @@ class TemplateRepository extends BaseRepository implements TemplateRepositoryInt
     }
     public function createTemplate($name, $logo, $title, $footer, $avaPath)
     {
-        return $this->model->create([
+        return $this->model->create(
+            [
             'name' => $name,
             'logo' => $logo,
             'title' => $title,
             'footer' => $footer,
             'avaPath' => $avaPath,
-        ]);
+            ]
+        );
     }
     public function getAllTemplate()
     {

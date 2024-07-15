@@ -19,10 +19,12 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
     }
     public function createAdmin()
     {
-        return $this->model->create([
+        return $this->model->create(
+            [
             'username' => 'test01',
             'password' => bcrypt('123456'),
-        ]);
+            ]
+        );
     }
     public function findLoggedUser()
     {

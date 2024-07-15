@@ -66,9 +66,10 @@ abstract class BaseRepository implements RepositoryInterface
 
     /**
      * Retrieve all data of repository, paginated
-     * @param int|null $limit
-     * @param array $columns
-     * @param string $method
+     *
+     * @param  int|null $limit
+     * @param  array    $columns
+     * @param  string   $method
      * @return mixed
      * @throws Exception
      */
@@ -83,7 +84,8 @@ abstract class BaseRepository implements RepositoryInterface
 
     /**
      * Save a new entity in repository
-     * @param array $attributes
+     *
+     * @param  array $attributes
      * @return mixed
      * @throws Exception
      */
@@ -100,8 +102,9 @@ abstract class BaseRepository implements RepositoryInterface
 
     /**
      * Find data by id
-     * @param mixed $id
-     * @param array $columns
+     *
+     * @param  mixed $id
+     * @param  array $columns
      * @return mixed
      * @throws Exception
      */
@@ -115,8 +118,9 @@ abstract class BaseRepository implements RepositoryInterface
 
     /**
      * Update a entity in repository by id
-     * @param array $attributes
-     * @param mixed $id
+     *
+     * @param  array $attributes
+     * @param  mixed $id
      * @return mixed
      * @throws Exception
      */
@@ -136,7 +140,8 @@ abstract class BaseRepository implements RepositoryInterface
 
     /**
      * Delete a entity in repository by id
-     * @param mixed $id
+     *
+     * @param  mixed $id
      * @return int
      * @throws Exception
      */
@@ -150,9 +155,10 @@ abstract class BaseRepository implements RepositoryInterface
 
     /**
      * Find data by field and value
-     * @param mixed $field
-     * @param mixed|null $value
-     * @param array $columns
+     *
+     * @param  mixed      $field
+     * @param  mixed|null $value
+     * @param  array      $columns
      * @return mixed
      * @throws Exception
      */
@@ -166,13 +172,15 @@ abstract class BaseRepository implements RepositoryInterface
 
     /**
      * Find data by multiple fields
-     * @param array $where
-     * @param array $columns
+     *
+     * @param  array $where
+     * @param  array $columns
      * @return mixed
      * @throws Exception
      */
     public function findWhere(array $where, array $columns = ['*']): mixed
     {
+        $this->applyConditions($where);
         $model = $this->model->get($columns);
         $this->resetModel();
 
@@ -182,7 +190,8 @@ abstract class BaseRepository implements RepositoryInterface
 
     /**
      * Load relations
-     * @param array|string $relations
+     *
+     * @param  array|string $relations
      * @return $this
      */
     public function with(array|string $relations): static
@@ -200,15 +209,14 @@ abstract class BaseRepository implements RepositoryInterface
      * @return void
      * @throws Exception
      */
+    // phpcs:disable
     protected function applyConditions(array $where): void
     {
-
         foreach ($where as $field => $value) {
             if (is_array($value)) {
                 list($field, $condition, $val) = $value;
                 //smooth input
                 $condition = preg_replace('/\s\s+/', ' ', trim($condition));
-
                 //split to get operator, syntax: "DATE >", "DATE =", "DAY <"
                 $operator = explode(' ', $condition);
                 if (count($operator) > 1) {
@@ -319,6 +327,7 @@ abstract class BaseRepository implements RepositoryInterface
             }
         }
     }
+    // phpcs:enable
 
     /**
      * Trigger static method calls to the model
@@ -337,7 +346,7 @@ abstract class BaseRepository implements RepositoryInterface
      * Trigger method calls to the model
      *
      * @param string $method
-     * @param array $arguments
+     * @param array  $arguments
      *
      * @return mixed
      */

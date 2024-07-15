@@ -44,13 +44,16 @@ class TemplateService implements TemplateServiceInterface
             } catch (\Exception $e) {
                 return $this->responseFail($e->getMessage());
             }
-            return $this->responseSuccess([
+            return $this->responseSuccess(
+                [
                 'status' => 'success',
                 'access_token' => $token,
                 'token_type' => 'Bearer',
                 'username' => $user->username,
                 'role' => $user->hasRole('admin') ? 'ADMIN' : 'USER',
-            ], 'Log in successfully');
+                ],
+                'Log in successfully'
+            );
         } else {
             return $this->responseFail(__('messages.login-F'));
         }
@@ -76,9 +79,12 @@ class TemplateService implements TemplateServiceInterface
             DB::rollback();
             return $this->responseFail(__('messages.errorAddingTem'), 500);
         }
-        return $this->responseSuccess([
+        return $this->responseSuccess(
+            [
             'template' => $template,
-        ], __('messages.tempCreate-T'));
+            ],
+            __('messages.tempCreate-T')
+        );
     }
     public function deleteTemplate($templateIds)
     {
@@ -86,7 +92,9 @@ class TemplateService implements TemplateServiceInterface
             $templateIds = explode(',', $templateIds);
         }
         if (!is_array($templateIds)) {
-            return $this->responseFail('Invalid template_ids format.', 400);
+            if (!is_array($templateIds)) {
+                return $this->responseFail('Invalid template_ids format.', 400);
+            }
         }
         $show = $this->showRepository->getShow();
         foreach ($templateIds as $templateId) {
@@ -118,27 +126,32 @@ class TemplateService implements TemplateServiceInterface
         }
         $query = $this->sectionRepository->selectSectionBelongTo($chosenTemplate->id)->get();
 
-        return $this->responseSuccess([
+        return $this->responseSuccess(
+            [
             'id' => $chosenTemplate->id,
             'logo' => $chosenTemplate->logo,
             'title' => $chosenTemplate->title,
             'footer' => $chosenTemplate->footer,
             'avaPath' => $chosenTemplate->avaPath,
             'section' => $query,
-        ], __('messages.show-T'));
+            ],
+            __('messages.show-T')
+        );
     }
 
     public function getTemplate($template)
     {
         $query = $this->sectionRepository->selectSectionBelongTo($template->id)->get();
-        return $this->responseSuccess([
+        return $this->responseSuccess(
+            [
             'id' => $template->id,
             'logo' => $template->logo,
             'title' => $template->title,
             'footer' => $template->footer,
             'avaPath' => $template->avaPath,
             'section' => $query,
-        ]);
+            ]
+        );
     }
     public function cloneTemplate($template, $request)
     {

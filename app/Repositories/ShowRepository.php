@@ -17,9 +17,11 @@ class ShowRepository extends BaseRepository implements ShowRepositoryInterface
     }
     public function createShow($template)
     {
-        return $this->model->create([
+        return $this->model->create(
+            [
             'template_id' => $template->id,
-        ]);
+            ]
+        );
         ;
     }
 }

@@ -17,12 +17,14 @@ class SectionRepository extends BaseRepository implements SectionRepositoryInter
     }
     public function createSection($type, $title, $content1, $content2, $template_id)
     {
-        return $this->model->create([
+        return $this->model->create(
+            [
             'type' => $type,
             'title' => $title,
             'content1' => $content1,
             'content2' => $content2,
             'template_id' => $template_id,
-        ]);
+            ]
+        );
     }
 }
