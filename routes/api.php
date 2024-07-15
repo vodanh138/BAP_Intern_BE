@@ -18,7 +18,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/templates', [UserController::class, 'AddTemplate']);
         Route::post('/templates/{template}', [UserController::class, 'CloneTemplate']);
         Route::post('/{template}/sections', [UserController::class, 'AddSection']);
-        Route::put('/templates/{template}', [UserController::class, 'EditTemplate']);
         Route::delete('/templates', [UserController::class, 'DeleteTemplate']);
         Route::delete('/sections/{section}', [UserController::class, 'DeleteSection']);
         Route::put('/show/{template}', [UserController::class, 'ChangeTemplate']);

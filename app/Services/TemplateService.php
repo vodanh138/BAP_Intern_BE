@@ -1,8 +1,8 @@
 <?php
+
 namespace App\Services;
 
 use App\Services\Interfaces\TemplateServiceInterface;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use App\Repositories\Interfaces\TemplateRepositoryInterface;
 use App\Repositories\Interfaces\UserRepositoryInterface;
@@ -51,42 +51,30 @@ class TemplateService implements TemplateServiceInterface
                 'role' => $user->hasRole('admin') ? 'ADMIN' : 'USER',
             ], 'Log in successfully');
         } else {
-            return $this->responseFail('Username or password incorect');
+            return $this->responseFail(__('messages.login-F'));
         }
     }
     public function addTemplate($request)
     {
         $template = $this->templateRepository->getATemplateByName($request->name);
         if ($template)
-            return $this->responseFail("Template's name must be unique");
+            return $this->responseFail(__('validation.unique'));
         DB::beginTransaction();
-
         try {
             $template = $this->templateRepository->createTemplate($request->name, 'lg', 'default-title', 'default-footer', '/images/default-ava.png');
             if (!$template)
-                return $this->responseFail('Failed to create template in database');
+                return $this->responseFail(__('messages.tempCreate-F'));
             if (!$this->addSection($template->id))
-                return $this->responseFail('Failed to create section in database');
+                return $this->responseFail(__('messages.secCreate-F'));
             DB::commit();
         } catch (\Exception $e) {
             DB::rollback();
-            return $this->responseFail('Some error orcurr when adding template', 500);
+            return $this->responseFail(__('messages.errorAddingTem'), 500);
         }
         return $this->responseSuccess([
             'template' => $template,
-        ], 'Create template successfully');
+        ], __('messages.tempCreate-T'));
     }
-
-    public function editTemplate($request, $template)
-    {
-        $template->update([
-            'name' => $request->name,
-        ]);
-        return $this->responseSuccess([
-            'template' => $template,
-        ], "Edit template's name successfully");
-    }
-
     public function deleteTemplate($templateIds)
     {
         if (is_string($templateIds)) {
@@ -97,9 +85,9 @@ class TemplateService implements TemplateServiceInterface
         $show = $this->showRepository->getShow();
         foreach ($templateIds as $templateId) {
             if (!$this->templateRepository->getATemplate($templateId))
-                return $this->responseFail('Template ' . $templateId . ' not found');
+                return $this->responseFail(__('messages.template') . $templateId . __('messages.notFound'), 404);
             if ($templateId == $show->template_id)
-                return $this->responseFail('Cannot delete template ' . $templateId . '(chosen template)');
+                return $this->responseFail(__('messages.cantDelTemp') . $templateId . __('messages.chosenTemp'));
         }
         $template = '';
         foreach ($templateIds as $templateId) {
@@ -107,17 +95,17 @@ class TemplateService implements TemplateServiceInterface
             $template .= $templateId . ',';
         }
         $template = rtrim($template, ',');
-        return $this->responseSuccess([], 'Template ' . $template . ' deleted successfully');
+        return $this->responseSuccess([], __('messages.template') . $template . __('messages.del-T'));
     }
 
     public function show()
     {
         $show = $this->showRepository->getShow();
         if (!$show)
-            return $this->responseFail('There is nothing to show');
+            return $this->responseFail(__('messages.showNothing'));
         $chosenTemplate = $this->templateRepository->getATemplate($show->template_id);
         if (!$chosenTemplate)
-            return $this->responseFail('No template have been chosen');
+            return $this->responseFail(__('messages.noChosen'));
         $query = $this->sectionRepository->selectSectionBelongTo($chosenTemplate->id)->get();
 
         return $this->responseSuccess([
@@ -127,7 +115,7 @@ class TemplateService implements TemplateServiceInterface
             'footer' => $chosenTemplate->footer,
             'avaPath' => $chosenTemplate->avaPath,
             'section' => $query,
-        ], 'Show successfully');
+        ], __('messages.show-T'));
     }
 
     public function getTemplate($template)
@@ -146,13 +134,13 @@ class TemplateService implements TemplateServiceInterface
     {
         $template1 = $this->templateRepository->getATemplateByName($request->name);
         if ($template1)
-            return $this->responseFail("Template's name must be unique");
+            return $this->responseFail(__('validation.unique'));
         DB::beginTransaction();
 
         try {
             $newtemplate = $this->templateRepository->createTemplate($request->name, $template->logo, $template->title, $template->footer, $template->avaPath);
             if (!$newtemplate)
-                return $this->responseFail('Failed to create template in database');
+                return $this->responseFail(__('messages.tempCreate-F'));
             try {
                 $this->sectionRepository->selectSectionBelongTo($template->id)->get()->map(function ($section) use ($newtemplate) {
                     $this->sectionRepository->createSection($section->type, $section->title, $section->content1, $section->content2, $newtemplate->id);
@@ -161,72 +149,88 @@ class TemplateService implements TemplateServiceInterface
                 return $this->responseFail($e->getMessage(), 500);
             }
             DB::commit();
+            return $this->responseSuccess([
+                'template' => $this->getTemplate($newtemplate)->original,
+            ], __('messages.clone-T'));
         } catch (\Exception $e) {
             DB::rollback();
-            return $this->responseFail('Some error orcurr when copying template', 500);
+            return $this->responseFail(__('messages.clone-F'), 500);
         }
-
-        return $this->responseSuccess([
-            'template' => $this->getTemplate($newtemplate)->original,
-        ], 'Clone template successfully');
     }
 
     public function getAllTemplates()
     {
-        $user = Auth::user();
-        $show = $this->showRepository->getShow();
-        return $this->responseSuccess([
-            'username' => $user->username,
-            'chosen' => $show->template_id,
-            'templates' => $this->templateRepository->getAllTemplate(),
-        ]);
+        try {
+            $user = Auth::user();
+            $show = $this->showRepository->getShow();
+            return $this->responseSuccess([
+                'username' => $user->username,
+                'chosen' => $show->template_id,
+                'templates' => $this->templateRepository->getAllTemplate(),
+            ],__('messages.allTemp-T'));
+        } catch (\Exception $e) {
+            return $this->responseFail(__('messages.allTemp-F'));
+        }
     }
 
     public function changeTemplate($template)
     {
-        $show = $this->showRepository->getShow();
-        $show->update([
-            'template_id' => $template->id,
-        ]);
-        return $this->getTemplate($template);
+        try {
+            $show = $this->showRepository->getShow();
+            $show->update([
+                'template_id' => $template->id,
+            ]);
+            return $this->getTemplate($template);
+        } catch (\Exception $e) {
+            return $this->responseFail(__('messages.chooseTemp-F'));
+        }
     }
     public function addSection($template_id)
     {
-        $section = $this->sectionRepository->createSection(1, 'default-title', 'default-content1', '', $template_id);
-        if (!$section)
-            return $this->responseFail('Failed to create section in database');
-        return $this->responseSuccess([
-            'section' => $section,
-        ], 'Add section successfully');
+        try {
+            $section = $this->sectionRepository->createSection(1, 'default-title', 'default-content1', '', $template_id);
+            return $this->responseSuccess([
+                'section' => $section,
+            ], __('messages.secCreate-T'));
+        } catch (\Exception $e) {
+            return $this->responseFail(__('messages.secCreate-F'));
+        }
     }
     public function deleteSection($section)
     {
         $count = $this->sectionRepository->selectSectionBelongTo($section->template_id)->count();
         if ($count === 1)
-            return $this->responseFail('Cannot delete the only section');
-
-        $section->delete();
-
-        return $this->responseSuccess([], 'Section deleted successfully');
+            return $this->responseFail(__('messages.delOnlySection'));
+        try {
+            $section->delete();
+            return $this->responseSuccess([], __('messages.secDel-T'));
+        } catch (\Exception $e) {
+            return $this->responseFail([], __('messages.secDel-F'));
+        }
     }
     public function editSection($request, $Section)
     {
-        $Section->update([
-            'type' => $request->type,
-            'title' => $request->title,
-            'content1' => $request->input('content1', ''),
-        ]);
-        if ($request->type == 2)
+        try {
             $Section->update([
-                'content2' => $request->input('content2', ''),
+                'type' => $request->type,
+                'title' => $request->title,
+                'content1' => $request->input('content1', ''),
             ]);
-        else
-            $Section->update([
-                'content2' => '',
-            ]);
-        return $this->responseSuccess([
-            'section' => $Section,
-        ], 'Edit template successfully');
+            if ($request->type == 2)
+                $Section->update([
+                    'content2' => $request->input('content2', ''),
+                ]);
+            else
+                $Section->update([
+                    'content2' => '',
+                ]);
+            return $this->responseSuccess([
+                'section' => $Section,
+            ], __('messages.secEdit-T'));
+        } catch (\Exception $e) {
+            return $this->responseFail(__('messages.secEdit-F'));
+        }
+
     }
 
     public function editHeader($request, $templateId)
@@ -234,14 +238,17 @@ class TemplateService implements TemplateServiceInterface
         $template = $this->templateRepository->getATemplate($templateId);
 
         if (!$template)
-            return $this->responseFail('Template not found', 404);
-        $template->update([
-            'title' => $request->title,
-        ]);
-        return $this->responseSuccess([
-            'template' => $template,
-        ], 'Header updated successfully');
-
+            return $this->responseFail(__('messages.template') . $templateId . __('messages.notFound'), 404);
+        try {
+            $template->update([
+                'title' => $request->title,
+            ]);
+            return $this->responseSuccess([
+                'template' => $template,
+            ], __('messages.headerEdit-T'));
+        } catch (\Exception $e) {
+            return $this->responseFail(__('messages.headerEdit-F'));
+        }
     }
 
     public function editFooter($request, $templateId)
@@ -249,35 +256,43 @@ class TemplateService implements TemplateServiceInterface
         $template = $this->templateRepository->getATemplate($templateId);
 
         if (!$template)
-            return $this->responseFail('Template not found', 404);
+            return $this->responseFail(__('messages.template') . $templateId . __('messages.notFound'), 404);
 
-        $template->update([
-            'footer' => $request->footer,
-        ]);
+        try {
+            $template->update([
+                'footer' => $request->footer,
+            ]);
 
-        return $this->responseSuccess([
-            'template' => $template,
-        ], 'Footer updated successfully');
+            return $this->responseSuccess([
+                'template' => $template,
+            ], __('messages.footerEdit-T'));
+        } catch (\Exception $e) {
+            return $this->responseFail(__('messages.footerEdit-F'));
+        }
     }
     public function editAvatar($request, $template)
     {
         if ($request->hasFile('image')) {
-            $image = $request->file('image');
-            $imageName = '/images/' . time() . '.' . $image->getClientOriginalExtension();
+            try {
+                $image = $request->file('image');
+                $imageName = '/images/' . time() . '.' . $image->getClientOriginalExtension();
 
-            $oldImage = $template->avaPath;
-            if ($oldImage) {
-                $oldImagePath = public_path('images') . '/' . $oldImage;
-                if (file_exists($oldImagePath))
-                    unlink($oldImagePath);
+                $oldImage = $template->avaPath;
+                if ($oldImage) {
+                    $oldImagePath = public_path('images') . '/' . $oldImage;
+                    if (file_exists($oldImagePath))
+                        unlink($oldImagePath);
+                }
+
+                $image->move(public_path('images'), $imageName);
+                $template->update([
+                    'avaPath' => $imageName,
+                ]);
+                return $this->responseSuccess(__('messages.avaEdit-T'));
+            } catch (\Exception $e) {
+                return $this->responseFail(__('messages.avaEdit-F'));
             }
-
-            $image->move(public_path('images'), $imageName);
-            $template->update([
-                'avaPath' => $imageName,
-            ]);
-            return $this->responseSuccess('Change Avatar successfully');
         }
-        return $this->responseFail('Failed to change Avatar');
+        return $this->responseFail(__('messages.avaEdit-F'));
     }
 }

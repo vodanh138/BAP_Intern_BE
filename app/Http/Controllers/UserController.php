@@ -30,7 +30,7 @@ class UserController extends Controller
     {
         try {
             $request->user()->currentAccessToken()->delete();
-            return $this->responseSuccess([],'Logged out successfully');
+            return $this->responseSuccess([], __('messages.logout-T'));
         } catch (\Exception $e) {
             return $this->responseFail($e->getMessage(), 500);
         }
@@ -39,11 +39,6 @@ class UserController extends Controller
     public function AddTemplate(TemplateRequest $request)
     {
         return $this->templateService->addTemplate($request);
-    }
-
-    public function EditTemplate(TemplateRequest $request, Template $template)
-    {
-        return $this->templateService->editTemplate($request, $template);
     }
 
     public function DeleteTemplate(Request $request)
