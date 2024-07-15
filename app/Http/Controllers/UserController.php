@@ -48,7 +48,7 @@ class UserController extends Controller
 
     public function DeleteTemplate(Request $request)
     {
-        $templateIds = $request->input('template_ids', []);
+        $templateIds = $request->input('templateId', []);
         return $this->templateService->deleteTemplate($templateIds);
     }
 
