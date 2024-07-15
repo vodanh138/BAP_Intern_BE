@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 
 Route::get('/not-authorized', function () {
-    return $this->responseFail('Unauthorized, Please Login.',401);
+    return $this->responseFail('Unauthorized, Please Login.', 401);
 })->name('login');
 Route::post('/login', [UserController::class, 'loginProcessing']);
 Route::get('/client', [UserController::class, 'show']);

@@ -82,6 +82,9 @@ class UserController extends Controller
     }
     public function editSection(SectionRequest $request, Template $template, Section $section)
     {
+        if (!$template) {
+            return $this->responseFail(__('messages.template') . $template->id . __('messages.notFound'), 404);
+        }
         return $this->templateService->editSection($request, $section);
     }
 
