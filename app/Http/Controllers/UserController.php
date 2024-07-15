@@ -30,7 +30,7 @@ class UserController extends Controller
     {
         try {
             $request->user()->currentAccessToken()->delete();
-            return $this->responseSuccess([],'Logged out successfully');
+            return $this->responseSuccess([], 'Logged out successfully');
         } catch (\Exception $e) {
             return $this->responseFail($e->getMessage(), 500);
         }
@@ -83,7 +83,7 @@ class UserController extends Controller
     {
         return $this->templateService->deleteSection($section);
     }
-    public function EditSection(SectionRequest $request, Template $template, Section $section)
+    public function EditSection(SectionRequest $request, Section $section)
     {
         return $this->templateService->editSection($request, $section);
     }

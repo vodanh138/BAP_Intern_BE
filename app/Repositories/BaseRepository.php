@@ -66,9 +66,10 @@ abstract class BaseRepository implements RepositoryInterface
 
     /**
      * Retrieve all data of repository, paginated
-     * @param int|null $limit
-     * @param array $columns
-     * @param string $method
+     *
+     * @param  int|null $limit
+     * @param  array    $columns
+     * @param  string   $method
      * @return mixed
      * @throws Exception
      */
@@ -83,7 +84,8 @@ abstract class BaseRepository implements RepositoryInterface
 
     /**
      * Save a new entity in repository
-     * @param array $attributes
+     *
+     * @param  array $attributes
      * @return mixed
      * @throws Exception
      */
@@ -99,8 +101,9 @@ abstract class BaseRepository implements RepositoryInterface
 
     /**
      * Find data by id
-     * @param mixed $id
-     * @param array $columns
+     *
+     * @param  mixed $id
+     * @param  array $columns
      * @return mixed
      * @throws Exception
      */
@@ -114,8 +117,9 @@ abstract class BaseRepository implements RepositoryInterface
 
     /**
      * Update a entity in repository by id
-     * @param array $attributes
-     * @param mixed $id
+     *
+     * @param  array $attributes
+     * @param  mixed $id
      * @return mixed
      * @throws Exception
      */
@@ -135,7 +139,8 @@ abstract class BaseRepository implements RepositoryInterface
 
     /**
      * Delete a entity in repository by id
-     * @param mixed $id
+     *
+     * @param  mixed $id
      * @return int
      * @throws Exception
      */
@@ -149,9 +154,10 @@ abstract class BaseRepository implements RepositoryInterface
 
     /**
      * Find data by field and value
-     * @param mixed $field
-     * @param mixed|null $value
-     * @param array $columns
+     *
+     * @param  mixed      $field
+     * @param  mixed|null $value
+     * @param  array      $columns
      * @return mixed
      * @throws Exception
      */
@@ -165,13 +171,15 @@ abstract class BaseRepository implements RepositoryInterface
 
     /**
      * Find data by multiple fields
-     * @param array $where
-     * @param array $columns
+     *
+     * @param  array $where
+     * @param  array $columns
      * @return mixed
      * @throws Exception
      */
     public function findWhere(array $where, array $columns = ['*']): mixed
     {
+        $this->applyConditions($where);
         $model = $this->model->get($columns);
         $this->resetModel();
 
@@ -181,7 +189,8 @@ abstract class BaseRepository implements RepositoryInterface
 
     /**
      * Load relations
-     * @param array|string $relations
+     *
+     * @param  array|string $relations
      * @return $this
      */
     public function with(array|string $relations): static
@@ -199,80 +208,111 @@ abstract class BaseRepository implements RepositoryInterface
      * @return void
      * @throws Exception
      */
+    // phpcs:disable
     protected function applyConditions(array $where): void
     {
-
         foreach ($where as $field => $value) {
             if (is_array($value)) {
                 list($field, $condition, $val) = $value;
                 //smooth input
                 $condition = preg_replace('/\s\s+/', ' ', trim($condition));
-
                 //split to get operator, syntax: "DATE >", "DATE =", "DAY <"
                 $operator = explode(' ', $condition);
                 if (count($operator) > 1) {
                     $condition = $operator[0];
                     $operator = $operator[1];
-                } else $operator = null;
+                } else {
+                    $operator = null;
+                }
                 switch (strtoupper($condition)) {
                     case 'IN':
-                        if (!is_array($val)) throw new Exception("Input {$val} mus be an array");
+                        if (!is_array($val)) {
+                            throw new Exception("Input {$val} mus be an array");
+                        }
                         $this->model = $this->model->whereIn($field, $val);
                         break;
                     case 'NOTIN':
-                        if (!is_array($val)) throw new Exception("Input {$val} mus be an array");
+                        if (!is_array($val)) {
+                            throw new Exception("Input {$val} mus be an array");
+                        }
                         $this->model = $this->model->whereNotIn($field, $val);
                         break;
                     case 'DATE':
-                        if (!$operator) $operator = '=';
+                        if (!$operator) {
+                            $operator = '=';
+                        }
                         $this->model = $this->model->whereDate($field, $operator, $val);
                         break;
                     case 'DAY':
-                        if (!$operator) $operator = '=';
+                        if (!$operator) {
+                            $operator = '=';
+                        }
                         $this->model = $this->model->whereDay($field, $operator, $val);
                         break;
                     case 'MONTH':
-                        if (!$operator) $operator = '=';
+                        if (!$operator) {
+                            $operator = '=';
+                        }
                         $this->model = $this->model->whereMonth($field, $operator, $val);
                         break;
                     case 'YEAR':
-                        if (!$operator) $operator = '=';
+                        if (!$operator) {
+                            $operator = '=';
+                        }
                         $this->model = $this->model->whereYear($field, $operator, $val);
                         break;
                     case 'EXISTS':
-                        if (!($val instanceof Closure)) throw new Exception("Input {$val} must be closure function");
+                        if (!($val instanceof Closure)) {
+                            throw new Exception("Input {$val} must be closure function");
+                        }
                         $this->model = $this->model->whereExists($val);
                         break;
                     case 'HAS':
-                        if (!($val instanceof Closure)) throw new Exception("Input {$val} must be closure function");
+                        if (!($val instanceof Closure)) {
+                            throw new Exception("Input {$val} must be closure function");
+                        }
                         $this->model = $this->model->whereHas($field, $val);
                         break;
                     case 'HASMORPH':
-                        if (!($val instanceof Closure)) throw new Exception("Input {$val} must be closure function");
+                        if (!($val instanceof Closure)) {
+                            throw new Exception("Input {$val} must be closure function");
+                        }
                         $this->model = $this->model->whereHasMorph($field, $val);
                         break;
                     case 'DOESNTHAVE':
-                        if (!($val instanceof Closure)) throw new Exception("Input {$val} must be closure function");
+                        if (!($val instanceof Closure)) {
+                            throw new Exception("Input {$val} must be closure function");
+                        }
                         $this->model = $this->model->whereDoesntHave($field, $val);
                         break;
                     case 'DOESNTHAVEMORPH':
-                        if (!($val instanceof Closure)) throw new Exception("Input {$val} must be closure function");
+                        if (!($val instanceof Closure)) {
+                            throw new Exception("Input {$val} must be closure function");
+                        }
                         $this->model = $this->model->whereDoesntHaveMorph($field, $val);
                         break;
                     case 'BETWEEN':
-                        if (!is_array($val)) throw new Exception("Input {$val} mus be an array");
+                        if (!is_array($val)) {
+                            throw new Exception("Input {$val} mus be an array");
+                        }
                         $this->model = $this->model->whereBetween($field, $val);
                         break;
                     case 'BETWEENCOLUMNS':
-                        if (!is_array($val)) throw new Exception("Input {$val} mus be an array");
+                        if (!is_array($val)) {
+                            throw new Exception("Input {$val} mus be an array");
+                        }
                         $this->model = $this->model->whereBetweenColumns($field, $val);
                         break;
                     case 'NOTBETWEEN':
-                        if (!is_array($val)) throw new Exception("Input {$val} mus be an array");
+                        if (!is_array($val)) {
+                            throw new Exception("Input {$val} mus be an array");
+                        }
                         $this->model = $this->model->whereNotBetween($field, $val);
                         break;
                     case 'NOTBETWEENCOLUMNS':
-                        if (!is_array($val)) throw new Exception("Input {$val} mus be an array");
+                        if (!is_array($val)) {
+                            throw new Exception("Input {$val} mus be an array");
+                        }
                         $this->model = $this->model->whereNotBetweenColumns($field, $val);
                         break;
                     case 'RAW':
@@ -286,6 +326,7 @@ abstract class BaseRepository implements RepositoryInterface
             }
         }
     }
+    // phpcs:enable
 
     /**
      * Trigger static method calls to the model
@@ -304,7 +345,7 @@ abstract class BaseRepository implements RepositoryInterface
      * Trigger method calls to the model
      *
      * @param string $method
-     * @param array $arguments
+     * @param array  $arguments
      *
      * @return mixed
      */

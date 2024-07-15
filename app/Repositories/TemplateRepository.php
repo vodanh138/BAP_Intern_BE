@@ -1,9 +1,9 @@
 <?php
 
 namespace App\Repositories;
+
 use App\Models\Template;
 use App\Repositories\Interfaces\TemplateRepositoryInterface;
-
 
 class TemplateRepository extends BaseRepository implements TemplateRepositoryInterface
 {
@@ -15,15 +15,17 @@ class TemplateRepository extends BaseRepository implements TemplateRepositoryInt
     {
         return $this->model->first();
     }
-    public function createTemplate($name, $logo, $title, $footer,$avaPath)
+    public function createTemplate($name, $logo, $title, $footer, $avaPath)
     {
-        return $this->model->create([
+        return $this->model->create(
+            [
             'name' => $name,
             'logo' => $logo,
             'title' => $title,
             'footer' => $footer,
             'avaPath' => $avaPath,
-        ]);
+            ]
+        );
     }
     public function getAllTemplate()
     {

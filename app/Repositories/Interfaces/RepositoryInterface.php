@@ -8,9 +8,10 @@ interface RepositoryInterface
 {
     /**
      * Retrieve all data of repository, paginated
-     * @param int|null $limit
-     * @param array $columns
-     * @param string $method
+     *
+     * @param  int|null $limit
+     * @param  array    $columns
+     * @param  string   $method
      * @return mixed
      * @throws Exception
      */
@@ -18,7 +19,8 @@ interface RepositoryInterface
 
     /**
      * Save a new entity in repository
-     * @param array $attributes
+     *
+     * @param  array $attributes
      * @return mixed
      * @throws Exception
      */
@@ -26,8 +28,9 @@ interface RepositoryInterface
 
     /**
      * Find data by id
-     * @param mixed $id
-     * @param array $columns
+     *
+     * @param  mixed $id
+     * @param  array $columns
      * @return mixed
      * @throws Exception
      */
@@ -35,8 +38,9 @@ interface RepositoryInterface
 
     /**
      * Update a entity in repository by id
-     * @param array $attributes
-     * @param mixed $id
+     *
+     * @param  array $attributes
+     * @param  mixed $id
      * @return mixed
      * @throws Exception
      */
@@ -44,7 +48,8 @@ interface RepositoryInterface
 
     /**
      * Delete a entity in repository by id
-     * @param mixed $id
+     *
+     * @param  mixed $id
      * @return int
      * @throws Exception
      */
@@ -52,9 +57,10 @@ interface RepositoryInterface
 
     /**
      * Find data by field and value
-     * @param mixed $field
-     * @param mixed|null $value
-     * @param array $columns
+     *
+     * @param  mixed      $field
+     * @param  mixed|null $value
+     * @param  array      $columns
      * @return mixed
      * @throws Exception
      */
@@ -62,8 +68,9 @@ interface RepositoryInterface
 
     /**
      * Find data by multiple fields
-     * @param array $where
-     * @param array $columns
+     *
+     * @param  array $where
+     * @param  array $columns
      * @return mixed
      * @throws Exception
      */
@@ -71,7 +78,8 @@ interface RepositoryInterface
 
     /**
      * Load relations
-     * @param array|string $relations
+     *
+     * @param  array|string $relations
      * @return $this
      */
     public function with(array|string $relations): static;

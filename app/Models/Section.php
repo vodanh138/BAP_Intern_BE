@@ -21,4 +21,3 @@ class Section extends Model
         return $this->belongsTo(Template::class);
     }
 }
-

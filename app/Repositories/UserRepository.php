@@ -6,7 +6,6 @@ use App\Models\User;
 use App\Repositories\Interfaces\UserRepositoryInterface;
 use Illuminate\Support\Facades\Auth;
 
-
 class UserRepository extends BaseRepository implements UserRepositoryInterface
 {
  
@@ -21,10 +20,12 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
     }
     public function createAdmin()
     {
-        return $this->model->create([
+        return $this->model->create(
+            [
             'username' => 'test01',
             'password' => bcrypt('123456'),
-        ]);
+            ]
+        );
     }
     public function findLoggedUser()
     {
