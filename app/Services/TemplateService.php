@@ -46,11 +46,11 @@ class TemplateService implements TemplateServiceInterface
             }
             return $this->responseSuccess(
                 [
-                'status' => 'success',
-                'access_token' => $token,
-                'token_type' => 'Bearer',
-                'username' => $user->username,
-                'role' => $user->hasRole('admin') ? 'ADMIN' : 'USER',
+                    'status' => 'success',
+                    'access_token' => $token,
+                    'token_type' => 'Bearer',
+                    'username' => $user->username,
+                    'role' => $user->hasRole('admin') ? 'ADMIN' : 'USER',
                 ],
                 'Log in successfully'
             );
@@ -67,7 +67,7 @@ class TemplateService implements TemplateServiceInterface
         DB::beginTransaction();
         try {
             $template = $this->templateRepository->
-            createTemplate($request->name, 'lg', 'default-title', 'default-footer', '/images/default-ava.png');
+                createTemplate($request->name, 'lg', 'default-title', 'default-footer', '/images/default-ava.png');
             if (!$template) {
                 return $this->responseFail(__('messages.tempCreate-F'));
             }
@@ -81,7 +81,7 @@ class TemplateService implements TemplateServiceInterface
         }
         return $this->responseSuccess(
             [
-            'template' => $template,
+                'template' => $template,
             ],
             __('messages.tempCreate-T')
         );
@@ -128,12 +128,12 @@ class TemplateService implements TemplateServiceInterface
 
         return $this->responseSuccess(
             [
-            'id' => $chosenTemplate->id,
-            'logo' => $chosenTemplate->logo,
-            'title' => $chosenTemplate->title,
-            'footer' => $chosenTemplate->footer,
-            'avaPath' => $chosenTemplate->avaPath,
-            'section' => $query,
+                'id' => $chosenTemplate->id,
+                'logo' => $chosenTemplate->logo,
+                'title' => $chosenTemplate->title,
+                'footer' => $chosenTemplate->footer,
+                'avaPath' => $chosenTemplate->avaPath,
+                'section' => $query,
             ],
             __('messages.show-T')
         );
@@ -144,12 +144,12 @@ class TemplateService implements TemplateServiceInterface
         $query = $this->sectionRepository->selectSectionBelongTo($template->id)->get();
         return $this->responseSuccess(
             [
-            'id' => $template->id,
-            'logo' => $template->logo,
-            'title' => $template->title,
-            'footer' => $template->footer,
-            'avaPath' => $template->avaPath,
-            'section' => $query,
+                'id' => $template->id,
+                'logo' => $template->logo,
+                'title' => $template->title,
+                'footer' => $template->footer,
+                'avaPath' => $template->avaPath,
+                'section' => $query,
             ]
         );
     }
@@ -162,22 +162,33 @@ class TemplateService implements TemplateServiceInterface
         DB::beginTransaction();
 
         try {
+            $newAvaPath = '';
+            if ($template->avaPath) {
+                $oldAvaPath = public_path($template->avaPath);
+                if (file_exists($oldAvaPath)) {
+                    $newAvaName = time() . '_' . basename($oldAvaPath);
+                    $newAvaPath = '/images/' . $newAvaName;
+                    copy($oldAvaPath, public_path($newAvaPath));
+                } else {
+                    $newAvaPath = '/images/default-ava.png';
+                }
+            }
             $newtemplate = $this->templateRepository->
-            createTemplate($request->name, $template->logo, $template->title, $template->footer, $template->avaPath);
+                createTemplate($request->name, $template->logo, $template->title, $template->footer, $newAvaPath);
             if (!$newtemplate) {
                 return $this->responseFail(__('messages.tempCreate-F'));
             }
             try {
                 $this->sectionRepository->
-                selectSectionBelongTo($template->id)->get()->map(function ($section) use ($newtemplate) {
-                    $this->sectionRepository->createSection(
-                        $section->type,
-                        $section->title,
-                        $section->content1,
-                        $section->content2,
-                        $newtemplate->id
-                    );
-                });
+                    selectSectionBelongTo($template->id)->get()->map(function ($section) use ($newtemplate) {
+                        $this->sectionRepository->createSection(
+                            $section->type,
+                            $section->title,
+                            $section->content1,
+                            $section->content2,
+                            $newtemplate->id
+                        );
+                    });
             } catch (\Exception $e) {
                 return $this->responseFail($e->getMessage(), 500);
             }
@@ -222,7 +233,7 @@ class TemplateService implements TemplateServiceInterface
     {
         try {
             $section = $this->sectionRepository->
-            createSection(1, 'default-title', 'default-content1', '', $template_id);
+                createSection(1, 'default-title', 'default-content1', '', $template_id);
             return $this->responseSuccess([
                 'section' => $section,
             ], __('messages.secCreate-T'));
@@ -316,7 +327,7 @@ class TemplateService implements TemplateServiceInterface
 
                 $oldImage = $template->avaPath;
                 if ($oldImage) {
-                    $oldImagePath = public_path('images') . '/' . $oldImage;
+                    $oldImagePath = public_path() . '/' . $oldImage;
                     if (file_exists($oldImagePath)) {
                         unlink($oldImagePath);
                     }
