@@ -10,6 +10,7 @@ use App\Repositories\Interfaces\ShowRepositoryInterface;
 use App\Repositories\Interfaces\SectionRepositoryInterface;
 use App\Repositories\Interfaces\RoleRepositoryInterface;
 use App\Traits\ApiResponse;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
 
 class TemplateService implements TemplateServiceInterface
@@ -107,14 +108,15 @@ class TemplateService implements TemplateServiceInterface
         }
         $template = '';
         foreach ($templateIds as $templateId) {
-            $oldImage = $templateId->avaPath;
+            $template = $this->templateRepository->getATemplate($templateId);
+            $oldImage = $template->avaPath;
             if ($oldImage && $oldImage != '/images/default-ava.png') {
                 $oldImagePath = public_path() . '/' . $oldImage;
                 if (file_exists($oldImagePath)) {
                     unlink($oldImagePath);
                 }
             }
-            $this->templateRepository->getATemplate($templateId)->delete();
+            $template->delete();
             $template .= $templateId . ',';
         }
         $template = rtrim($template, ',');
@@ -350,5 +352,37 @@ class TemplateService implements TemplateServiceInterface
             }
         }
         return $this->responseFail(__('messages.avaEdit-F'));
+    }
+    public function loginProcessingLocale($username, $password, $locale)
+    {
+        if (!in_array($locale, ['en', 'vn'])) {
+            return $this->responseFail(__('messages.changelang-NF'), 404);
+        }
+        try {
+            session(['locale' => $locale]);
+            App::setLocale($locale);
+        } catch (\Exception $e) {
+            return $this->responseFail(__('messages.changelang-F'));
+        }
+        if (Auth::attempt(['username' => $username, 'password' => $password])) {
+            $user = $this->userRepository->findLoggedUser();
+            try {
+                $token = $user->createToken('auth_token')->plainTextToken;
+            } catch (\Exception $e) {
+                return $this->responseFail($e->getMessage());
+            }
+            return $this->responseSuccess(
+                [
+                    'status' => 'success',
+                    'access_token' => $token,
+                    'token_type' => 'Bearer',
+                    'username' => $user->username,
+                    'role' => $user->hasRole('admin') ? 'ADMIN' : 'USER',
+                ],
+                __('messages.login-T')
+            );
+        } else {
+            return $this->responseFail(__('messages.login-F'));
+        }
     }
 }
