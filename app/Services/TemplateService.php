@@ -107,6 +107,13 @@ class TemplateService implements TemplateServiceInterface
         }
         $template = '';
         foreach ($templateIds as $templateId) {
+            $oldImage = $templateId->avaPath;
+            if ($oldImage && $oldImage != '/images/default-ava.png') {
+                $oldImagePath = public_path() . '/' . $oldImage;
+                if (file_exists($oldImagePath)) {
+                    unlink($oldImagePath);
+                }
+            }
             $this->templateRepository->getATemplate($templateId)->delete();
             $template .= $templateId . ',';
         }
@@ -326,7 +333,7 @@ class TemplateService implements TemplateServiceInterface
                 $imageName = '/images/' . time() . '.' . $image->getClientOriginalExtension();
 
                 $oldImage = $template->avaPath;
-                if ($oldImage) {
+                if ($oldImage && $oldImage != '/images/default-ava.png') {
                     $oldImagePath = public_path() . '/' . $oldImage;
                     if (file_exists($oldImagePath)) {
                         unlink($oldImagePath);
