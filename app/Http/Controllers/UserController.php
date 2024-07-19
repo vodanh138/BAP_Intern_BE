@@ -53,7 +53,7 @@ class UserController extends Controller
     {
         return $this->templateService->show();
     }
-    public function cloneTemplate(Template $template, Request $request)
+    public function cloneTemplate(Template $template, TemplateRequest $request)
     {
         return $this->templateService->cloneTemplate($template, $request);
     }
@@ -100,5 +100,9 @@ class UserController extends Controller
     public function editAvatar(Template $template, AvatarRequest $request)
     {
         return $this->templateService->editAvatar($request, $template);
+    }
+    public function loginProcessingLocale(LoginRequest $request,$locale)
+    {
+        return $this->templateService->loginProcessingLocale($request->username, $request->password,$locale);
     }
 }

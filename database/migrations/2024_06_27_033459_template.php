@@ -14,6 +14,8 @@ return new class extends Migration
         Schema::create('templates', function (Blueprint $table) {
             $table->id();
             $table->string('name')->unique();
+            $table->integer('header_type')->default(1);
+            $table->integer('footer_type')->default(1);
             $table->string('logo');
             $table->string('title');
             $table->string('footer');

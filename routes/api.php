@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 
 Route::get('/not-authorized', function () {
-    return $this->responseFail('Unauthorized, Please Login.', 401);
+    return $this->responseFail(__('messages.unauthor'), 401);
 })->name('login');
 Route::post('/login', [UserController::class, 'loginProcessing']);
 Route::get('/client', [UserController::class, 'show']);
@@ -27,3 +27,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/{template}/ava', [UserController::class, 'editAvatar']);
     });
 });
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+Route::post('/{locale}/login', [UserController::class, 'loginProcessingLocale']);
+Route::get('/templates/{template}', [UserController::class, 'getTemplate']);

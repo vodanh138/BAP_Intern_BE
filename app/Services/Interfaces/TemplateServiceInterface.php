@@ -18,4 +18,5 @@ interface TemplateServiceInterface
     public function editHeader($request, $templateId);
     public function editFooter($request, $templateId);
     public function editAvatar($request, $template);
+    public function loginProcessingLocale($username, $password,$locale);
 }
