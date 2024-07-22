@@ -101,8 +101,8 @@ class UserController extends Controller
     {
         return $this->templateService->editAvatar($request, $template);
     }
-    public function loginProcessingLocale(LoginRequest $request,$locale)
+    public function loginProcessingLocale(LoginRequest $request, $locale)
     {
-        return $this->templateService->loginProcessingLocale($request->username, $request->password,$locale);
+        return $this->templateService->loginProcessingLocale($request->username, $request->password, $locale);
     }
 }

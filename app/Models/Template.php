@@ -11,9 +11,8 @@ class Template extends Model
 
     protected $fillable = [
         'name',
-        'header_type',
-        'footer_type',
-        'logo',
+        'headerType',
+        'footerType',
         'title',
         'footer',
         'avaPath',

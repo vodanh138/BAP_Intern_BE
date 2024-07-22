@@ -22,9 +22,8 @@ class initial extends Seeder
         //
         Template::create([
             'name' => 'default-name',
-            'header_type' => 1,
-            'footer_type' => 1,
-            'logo' => 'lg',
+            'headerType' => 1,
+            'footerType' => 1,
             'title' => 'default-title',
             'footer' => 'default-footer',
             'avaPath' => '/images/default-ava.png',

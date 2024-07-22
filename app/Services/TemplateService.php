@@ -68,7 +68,7 @@ class TemplateService implements TemplateServiceInterface
         DB::beginTransaction();
         try {
             $template = $this->templateRepository->
-                createTemplate($request->name, 1, 1, 'lg', 'default-title', 'default-footer', '/images/default-ava.png');
+                createTemplate($request->name, 1, 1, 'default-title', 'default-footer', '/images/default-ava.png');
             if (!$template) {
                 return $this->responseFail(__('messages.tempCreate-F'));
             }
@@ -138,9 +138,8 @@ class TemplateService implements TemplateServiceInterface
         return $this->responseSuccess(
             [
                 'id' => $chosenTemplate->id,
-                'header_type' => $chosenTemplate->header_type,
-                'footer_type' => $chosenTemplate->footer_type,
-                'logo' => $chosenTemplate->logo,
+                'headerType' => $chosenTemplate->headerType,
+                'footerType' => $chosenTemplate->footerType,
                 'title' => $chosenTemplate->title,
                 'footer' => $chosenTemplate->footer,
                 'avaPath' => $chosenTemplate->avaPath,
@@ -156,9 +155,8 @@ class TemplateService implements TemplateServiceInterface
         return $this->responseSuccess(
             [
                 'id' => $template->id,
-                'header_type' => $template->header_type,
-                'footer_type' => $template->footer_type,
-                'logo' => $template->logo,
+                'headerType' => $template->headerType,
+                'footerType' => $template->footerType,
                 'title' => $template->title,
                 'footer' => $template->footer,
                 'avaPath' => $template->avaPath,
@@ -187,7 +185,7 @@ class TemplateService implements TemplateServiceInterface
                 }
             }
             $newtemplate = $this->templateRepository->
-                createTemplate($request->name, $template->header_type, $template->footer_type, $template->logo, $template->title, $template->footer, $newAvaPath);
+                createTemplate($request->name, $template->headerType, $template->footerType, $template->title, $template->footer, $newAvaPath);
             if (!$newtemplate) {
                 return $this->responseFail(__('messages.tempCreate-F'));
             }
