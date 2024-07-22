@@ -13,8 +13,14 @@ class Template extends Model
         'name',
         'headerType',
         'footerType',
-        'title',
-        'footer',
+        'title1',
+        'title2',
+        'headerBgColor',
+        'headerTextColor',
+        'footer1',
+        'footer2',
+        'footerBgColor',
+        'footerTextColor',
         'avaPath',
     ];
     public function user()

@@ -15,16 +15,34 @@ class TemplateRepository extends BaseRepository implements TemplateRepositoryInt
     {
         return $this->model->first();
     }
-    public function createTemplate($name, $headerType, $footerType, $title, $footer, $avaPath)
-    {
+    public function createTemplate(
+        $name,
+        $headerType,
+        $footerType,
+        $title1,
+        $title2,
+        $headerBgColor,
+        $headerTextColor,
+        $footer1,
+        $footer2,
+        $footerBgColor,
+        $footerTextColor,
+        $avaPath
+    ) {
         return $this->model->create(
             [
-            'name' => $name,
-            'headerType' => 1,
-            'footerType' => 1,
-            'title' => $title,
-            'footer' => $footer,
-            'avaPath' => $avaPath,
+                'name' => $name,
+                'headerType' => 1,
+                'footerType' => 1,
+                'title1' => $title1,
+                'title2' => $title2,
+                'headerBgColor' => $headerBgColor,
+                'headerTextColor' => $headerTextColor,
+                'footer1' => $footer1,
+                'footer2' => $footer2,
+                'footerBgColor' => $footerBgColor,
+                'footerTextColor' => $footerTextColor,
+                'avaPath' => $avaPath,
             ]
         );
     }

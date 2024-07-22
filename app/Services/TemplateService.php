@@ -68,7 +68,20 @@ class TemplateService implements TemplateServiceInterface
         DB::beginTransaction();
         try {
             $template = $this->templateRepository->
-                createTemplate($request->name, 1, 1, 'default-title', 'default-footer', '/images/default-ava.png');
+                createTemplate(
+                    $request->name,
+                    1,
+                    1,
+                    'default-title1',
+                    '',
+                    '64748B',
+                    '000000',
+                    'default-footer1',
+                    '',
+                    '64748B',
+                    'FFFFFF',
+                    '/images/default-ava.png'
+                );
             if (!$template) {
                 return $this->responseFail(__('messages.tempCreate-F'));
             }
@@ -106,7 +119,7 @@ class TemplateService implements TemplateServiceInterface
                 return $this->responseFail(__('messages.cantDelTemp') . $templateId . __('messages.chosenTemp'));
             }
         }
-        $template = '';
+        $message = '';
         foreach ($templateIds as $templateId) {
             $template = $this->templateRepository->getATemplate($templateId);
             $oldImage = $template->avaPath;
@@ -117,10 +130,10 @@ class TemplateService implements TemplateServiceInterface
                 }
             }
             $template->delete();
-            $template .= $templateId . ',';
+            $message .= $templateId . ',';
         }
-        $template = rtrim($template, ',');
-        return $this->responseSuccess([], __('messages.template') . $template . __('messages.del-T'));
+        $template = rtrim($message, ',');
+        return $this->responseSuccess([], __('messages.template') . $message . __('messages.del-T'));
     }
 
     public function show()
@@ -140,8 +153,14 @@ class TemplateService implements TemplateServiceInterface
                 'id' => $chosenTemplate->id,
                 'headerType' => $chosenTemplate->headerType,
                 'footerType' => $chosenTemplate->footerType,
-                'title' => $chosenTemplate->title,
-                'footer' => $chosenTemplate->footer,
+                'title1' => $chosenTemplate->title1,
+                'title2' => $chosenTemplate->title2,
+                'headerBgColor' => $chosenTemplate->headerBgColor,
+                'headerTextColor' => $chosenTemplate->headerTextColor,
+                'footer1' => $chosenTemplate->footer1,
+                'footer2' => $chosenTemplate->footer2,
+                'footerBgColor' => $chosenTemplate->footerBgColor,
+                'footerTextColor' => $chosenTemplate->footerTextColor,
                 'avaPath' => $chosenTemplate->avaPath,
                 'section' => $query,
             ],
@@ -157,8 +176,14 @@ class TemplateService implements TemplateServiceInterface
                 'id' => $template->id,
                 'headerType' => $template->headerType,
                 'footerType' => $template->footerType,
-                'title' => $template->title,
-                'footer' => $template->footer,
+                'title1' => $template->title1,
+                'title2' => $template->title2,
+                'headerBgColor' => $template->headerBgColor,
+                'headerTextColor' => $template->headerTextColor,
+                'footer1' => $template->footer1,
+                'footer2' => $template->footer2,
+                'footerBgColor' => $template->footerBgColor,
+                'footerTextColor' => $template->footerTextColor,
                 'avaPath' => $template->avaPath,
                 'section' => $query,
             ]
@@ -185,7 +210,20 @@ class TemplateService implements TemplateServiceInterface
                 }
             }
             $newtemplate = $this->templateRepository->
-                createTemplate($request->name, $template->headerType, $template->footerType, $template->title, $template->footer, $newAvaPath);
+                createTemplate(
+                    $request->name,
+                    $template->headerType,
+                    $template->footerType,
+                    $template->title1,
+                    $template->title2,
+                    $template->headerBgColor,
+                    $template->headerTextColor,
+                    $template->footer1,
+                    $template->footer2,
+                    $template->footerBgColor,
+                    $template->footerTextColor,
+                    $newAvaPath
+                );
             if (!$newtemplate) {
                 return $this->responseFail(__('messages.tempCreate-F'));
             }
@@ -197,6 +235,8 @@ class TemplateService implements TemplateServiceInterface
                             $section->title,
                             $section->content1,
                             $section->content2,
+                            $section->bgColor,
+                            $section->textColor,
                             $newtemplate->id
                         );
                     });
@@ -244,7 +284,7 @@ class TemplateService implements TemplateServiceInterface
     {
         try {
             $section = $this->sectionRepository->
-                createSection(1, 'default-title', 'default-content1', '', $template_id);
+                createSection(1, 'default-title', 'default-content1', '', 'F3F4F6', '000000', $template_id);
             return $this->responseSuccess([
                 'section' => $section,
             ], __('messages.secCreate-T'));
@@ -272,6 +312,8 @@ class TemplateService implements TemplateServiceInterface
                 'type' => $request->type,
                 'title' => $request->title,
                 'content1' => $request->input('content1', ''),
+                'bgColor' => $request->bgColor,
+                'textColor' => $request->textColor,
             ]);
             if ($request->type == 2) {
                 $Section->update([
@@ -299,8 +341,20 @@ class TemplateService implements TemplateServiceInterface
         }
         try {
             $template->update([
-                'title' => $request->title,
+                'headerType' => $request->headerType,
+                'title1' => $request->input('title1', ''),
+                'headerBgColor' => $request->headerBgColor,
+                'headerTextColor' => $request->headerTextColor,
             ]);
+            if ($request->headerType == 2) {
+                $template->update([
+                    'title2' => $request->input('title2', ''),
+                ]);
+            } else {
+                $template->update([
+                    'title2' => '',
+                ]);
+            }
             return $this->responseSuccess([
                 'template' => $template,
             ], __('messages.headerEdit-T'));
@@ -319,9 +373,20 @@ class TemplateService implements TemplateServiceInterface
 
         try {
             $template->update([
-                'footer' => $request->footer,
+                'footerType' => $request->footerType,
+                'footer1' => $request->input('footer1', ''),
+                'footerBgColor' => $request->footerBgColor,
+                'footerTextColor' => $request->footerTextColor,
             ]);
-
+            if ($request->footerType == 2) {
+                $template->update([
+                    'footer2' => $request->input('footer2', ''),
+                ]);
+            } else {
+                $template->update([
+                    'footer2' => '',
+                ]);
+            }
             return $this->responseSuccess([
                 'template' => $template,
             ], __('messages.footerEdit-T'));

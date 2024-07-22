@@ -22,14 +22,31 @@ class HeaderRequest extends FormRequest
     public function rules()
     {
         return [
-            'title' => 'required|string',
+        'headerType' => 'required|integer|between:1,2',
+        'title1' => 'required|string|max:255',
+        'title2' => 'nullable|string|max:255',
+        'headerBgColor' => 'required|string|max:7',
+        'headerTextColor' => 'required|string|max:7',
         ];
     }
 
     public function messages()
     {
         return [
-            'title.required' => __('validation.required'),
+        'headerType.required' => __('validation.required', ['attribute' => 'header type']),
+        'headerType.integer' => __('validation.integer', ['attribute' => 'header type']),
+        'headerType.between' => __('validation.between', ['attribute' => 'header type', 'min' => 1, 'max' => 2]),
+        'title1.required' => __('validation.required', ['attribute' => 'title 1']),
+        'title1.string' => __('validation.string', ['attribute' => 'title 1']),
+        'title1.max' => __('validation.max.string', ['attribute' => 'title 1', 'max' => 255]),
+        'title2.string' => __('validation.string', ['attribute' => 'title 2']),
+        'title2.max' => __('validation.max.string', ['attribute' => 'title 2', 'max' => 255]),
+        'headerBgColor.required' => __('validation.required', ['attribute' => 'header background color']),
+        'headerBgColor.string' => __('validation.string', ['attribute' => 'header background color']),
+        'headerBgColor.max' => __('validation.max.string', ['attribute' => 'header background color', 'max' => 7]),
+        'headerTextColor.required' => __('validation.required', ['attribute' => 'header text color']),
+        'headerTextColor.string' => __('validation.string', ['attribute' => 'header text color']),
+        'headerTextColor.max' => __('validation.max.string', ['attribute' => 'header text color', 'max' => 7]),
         ];
     }
 }
