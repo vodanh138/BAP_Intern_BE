@@ -74,12 +74,12 @@ class TemplateService implements TemplateServiceInterface
                     1,
                     'default-title1',
                     '',
-                    '64748B',
-                    '000000',
+                    '#64748B',
+                    '#000000',
                     'default-footer1',
                     '',
-                    '64748B',
-                    'FFFFFF',
+                    '#64748B',
+                    '#FFFFFF',
                     '/images/default-ava.png'
                 );
             if (!$template) {
@@ -284,7 +284,7 @@ class TemplateService implements TemplateServiceInterface
     {
         try {
             $section = $this->sectionRepository->
-                createSection(1, 'default-title', 'default-content1', '', 'F3F4F6', '000000', $template_id);
+                createSection(1, 'default-title', 'default-content1', '', '#F3F4F6', '#000000', $template_id);
             return $this->responseSuccess([
                 'section' => $section,
             ], __('messages.secCreate-T'));
@@ -346,7 +346,7 @@ class TemplateService implements TemplateServiceInterface
                 'headerBgColor' => $request->headerBgColor,
                 'headerTextColor' => $request->headerTextColor,
             ]);
-            if ($request->headerType == 2) {
+            if ($request->headerType == 3) {
                 $template->update([
                     'title2' => $request->input('title2', ''),
                 ]);
