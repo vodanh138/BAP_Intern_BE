@@ -299,6 +299,7 @@ class TemplateService implements TemplateServiceInterface
         }
         try {
             $template->update([
+                'headerType' => $request->headerType,
                 'title' => $request->title,
             ]);
             return $this->responseSuccess([
@@ -319,6 +320,7 @@ class TemplateService implements TemplateServiceInterface
 
         try {
             $template->update([
+                'footerType' => $request->footerType,
                 'footer' => $request->footer,
             ]);
 
