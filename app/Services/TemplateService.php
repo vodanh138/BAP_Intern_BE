@@ -72,12 +72,10 @@ class TemplateService implements TemplateServiceInterface
                     $request->name,
                     1,
                     1,
-                    'default-title1',
-                    '',
+                    'default-title',
                     '#64748B',
                     '#000000',
-                    'default-footer1',
-                    '',
+                    'default-footer',
                     '#64748B',
                     '#FFFFFF',
                     '/images/default-ava.png'
@@ -153,12 +151,10 @@ class TemplateService implements TemplateServiceInterface
                 'id' => $chosenTemplate->id,
                 'headerType' => $chosenTemplate->headerType,
                 'footerType' => $chosenTemplate->footerType,
-                'title1' => $chosenTemplate->title1,
-                'title2' => $chosenTemplate->title2,
+                'title' => $chosenTemplate->title,
                 'headerBgColor' => $chosenTemplate->headerBgColor,
                 'headerTextColor' => $chosenTemplate->headerTextColor,
-                'footer1' => $chosenTemplate->footer1,
-                'footer2' => $chosenTemplate->footer2,
+                'footer' => $chosenTemplate->footer,
                 'footerBgColor' => $chosenTemplate->footerBgColor,
                 'footerTextColor' => $chosenTemplate->footerTextColor,
                 'avaPath' => $chosenTemplate->avaPath,
@@ -176,12 +172,10 @@ class TemplateService implements TemplateServiceInterface
                 'id' => $template->id,
                 'headerType' => $template->headerType,
                 'footerType' => $template->footerType,
-                'title1' => $template->title1,
-                'title2' => $template->title2,
+                'title' => $template->title,
                 'headerBgColor' => $template->headerBgColor,
                 'headerTextColor' => $template->headerTextColor,
-                'footer1' => $template->footer1,
-                'footer2' => $template->footer2,
+                'footer' => $template->footer,
                 'footerBgColor' => $template->footerBgColor,
                 'footerTextColor' => $template->footerTextColor,
                 'avaPath' => $template->avaPath,
@@ -214,12 +208,10 @@ class TemplateService implements TemplateServiceInterface
                     $request->name,
                     $template->headerType,
                     $template->footerType,
-                    $template->title1,
-                    $template->title2,
+                    $template->title,
                     $template->headerBgColor,
                     $template->headerTextColor,
-                    $template->footer1,
-                    $template->footer2,
+                    $template->footer,
                     $template->footerBgColor,
                     $template->footerTextColor,
                     $newAvaPath
@@ -342,19 +334,10 @@ class TemplateService implements TemplateServiceInterface
         try {
             $template->update([
                 'headerType' => $request->headerType,
-                'title1' => $request->input('title1', ''),
+                'title' => $request->input('title', ''),
                 'headerBgColor' => $request->headerBgColor,
                 'headerTextColor' => $request->headerTextColor,
             ]);
-            if ($request->headerType == 3) {
-                $template->update([
-                    'title2' => $request->input('title2', ''),
-                ]);
-            } else {
-                $template->update([
-                    'title2' => '',
-                ]);
-            }
             return $this->responseSuccess([
                 'template' => $template,
             ], __('messages.headerEdit-T'));
@@ -374,19 +357,10 @@ class TemplateService implements TemplateServiceInterface
         try {
             $template->update([
                 'footerType' => $request->footerType,
-                'footer1' => $request->input('footer1', ''),
+                'footer' => $request->input('footer', ''),
                 'footerBgColor' => $request->footerBgColor,
                 'footerTextColor' => $request->footerTextColor,
             ]);
-            if ($request->footerType == 2) {
-                $template->update([
-                    'footer2' => $request->input('footer2', ''),
-                ]);
-            } else {
-                $template->update([
-                    'footer2' => '',
-                ]);
-            }
             return $this->responseSuccess([
                 'template' => $template,
             ], __('messages.footerEdit-T'));
