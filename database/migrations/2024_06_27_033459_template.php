@@ -17,7 +17,11 @@ return new class extends Migration
             $table->integer('headerType')->default(1);
             $table->integer('footerType')->default(1);
             $table->string('title');
+            $table->string('headerBgColor');
+            $table->string('headerTextColor');
             $table->string('footer');
+            $table->string('footerBgColor');
+            $table->string('footerTextColor');
             $table->string('avaPath');
             $table->timestamps();
         });

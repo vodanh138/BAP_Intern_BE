@@ -25,7 +25,11 @@ class initial extends Seeder
             'headerType' => 1,
             'footerType' => 1,
             'title' => 'default-title',
+            'headerBgColor' => '#64748B',
+            'headerTextColor' => '#000000',
             'footer' => 'default-footer',
+            'footerBgColor' => '#64748B',
+            'footerTextColor' => '#FFFFFF',
             'avaPath' => '/images/default-ava.png',
         ]);
         $user = User::create([
@@ -41,6 +45,8 @@ class initial extends Seeder
             'title' => 'default-title',
             'content1' => 'default-content1',
             'content2' => '',
+            'bgColor' => '#F3F4F6',
+            'textColor' => '#000000',
             'template_id' => 1,
         ]);
         $role = Role::create(['name' => 'admin']);

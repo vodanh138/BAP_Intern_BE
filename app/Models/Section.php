@@ -14,6 +14,8 @@ class Section extends Model
         'title',
         'content1',
         'content2',
+        'bgColor',
+        'textColor',
         'template_id',
     ];
     public function template()

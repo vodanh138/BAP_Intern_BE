@@ -17,6 +17,8 @@ return new class extends Migration
             $table->string('title');
             $table->string('content1');
             $table->string('content2');
+            $table->string('bgColor');
+            $table->string('textColor');
             $table->foreignId('template_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });

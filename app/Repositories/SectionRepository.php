@@ -15,7 +15,7 @@ class SectionRepository extends BaseRepository implements SectionRepositoryInter
     {
         return $this->model->where('template_id', $template_id);
     }
-    public function createSection($type, $title, $content1, $content2, $template_id)
+    public function createSection($type, $title, $content1, $content2, $bgColor, $textColor, $template_id)
     {
         return $this->model->create(
             [
@@ -23,6 +23,8 @@ class SectionRepository extends BaseRepository implements SectionRepositoryInter
             'title' => $title,
             'content1' => $content1,
             'content2' => $content2,
+            'bgColor' => $bgColor,
+            'textColor' => $textColor,
             'template_id' => $template_id,
             ]
         );

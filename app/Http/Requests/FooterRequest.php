@@ -22,14 +22,28 @@ class FooterRequest extends FormRequest
     public function rules()
     {
         return [
-            'footer' => 'required|string',
+        'footerType' => 'required|integer|between:1,2',
+        'footer' => 'nullable|string|max:255',
+        'footerBgColor' => 'required|string|max:7',
+        'footerTextColor' => 'required|string|max:7',
         ];
     }
 
     public function messages()
     {
         return [
-            'footer.required' => __('validation.required'),
+        'footerType.required' => __('validation.required', ['attribute' => 'footer type']),
+        'footerType.integer' => __('validation.integer', ['attribute' => 'footer type']),
+        'footerType.between' => __('validation.between', ['attribute' => 'footer type', 'min' => 1, 'max' => 2]),
+        'footer.required' => __('validation.required', ['attribute' => 'footer content 1']),
+        'footer.string' => __('validation.string', ['attribute' => 'footer content']),
+        'footer.max' => __('validation.max.string', ['attribute' => 'footer content', 'max' => 255]),
+        'footerBgColor.required' => __('validation.required', ['attribute' => 'footer background color']),
+        'footerBgColor.string' => __('validation.string', ['attribute' => 'footer background color']),
+        'footerBgColor.max' => __('validation.max.string', ['attribute' => 'footer background color', 'max' => 7]),
+        'footerTextColor.required' => __('validation.required', ['attribute' => 'footer text color']),
+        'footerTextColor.string' => __('validation.string', ['attribute' => 'footer text color']),
+        'footerTextColor.max' => __('validation.max.string', ['attribute' => 'footer text color', 'max' => 7]),
         ];
     }
 }
