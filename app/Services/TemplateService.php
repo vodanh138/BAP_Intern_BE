@@ -51,7 +51,7 @@ class TemplateService implements TemplateServiceInterface
                     'access_token' => $token,
                     'token_type' => 'Bearer',
                     'username' => $user->username,
-                    'role' => $user->hasRole('admin') ? 'ADMIN' : 'USER',
+                    'role' => $user->hasRole('super-admin') ? 'super-admin' : ($user->hasRole('admin') ? 'admin' : 'user'),
                 ],
                 'Log in successfully'
             );
@@ -418,7 +418,7 @@ class TemplateService implements TemplateServiceInterface
                     'access_token' => $token,
                     'token_type' => 'Bearer',
                     'username' => $user->username,
-                    'role' => $user->hasRole('admin') ? 'ADMIN' : 'USER',
+                    'role' => $user->hasRole('super-admin') ? 'super-admin' : ($user->hasRole('admin') ? 'admin' : 'user'),
                 ],
                 __('messages.login-T')
             );
