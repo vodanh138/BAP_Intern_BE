@@ -28,5 +28,5 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 });
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-Route::post('/{locale}/login', [UserController::class, 'loginProcessingLocale']);
-Route::get('/templates/{template}', [UserController::class, 'getTemplate']);
+//Route::post('/{locale}/login', [UserController::class, 'loginProcessingLocale']);
+//Route::get('/templates/{template}', [UserController::class, 'getTemplate']);

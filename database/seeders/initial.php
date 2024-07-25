@@ -36,6 +36,14 @@ class initial extends Seeder
             'username' => 'test01',
             'password' => Hash::make('123456'),
         ]);
+        $user2 = User::create([
+            'username' => 'test02',
+            'password' => Hash::make('123456'),
+        ]);
+        $user3 = User::create([
+            'username' => 'test03',
+            'password' => Hash::make('123456'),
+        ]);
         Show::create([
             'template_id' => 1,
         ]);
@@ -50,7 +58,10 @@ class initial extends Seeder
             'template_id' => 1,
         ]);
         $role = Role::create(['name' => 'admin']);
+        $role2 = Role::create(['name' => 'super-admin']);
 
         $user->roles()->attach($role->id);
+        $user2->roles()->attach($role->id);
+        $user3->roles()->attach($role2->id);
     }
 }
