@@ -63,5 +63,6 @@ class initial extends Seeder
         $user->roles()->attach($role->id);
         $user2->roles()->attach($role->id);
         $user3->roles()->attach($role2->id);
+        $user3->roles()->attach($role->id);
     }
 }
