@@ -22,7 +22,7 @@ class HeaderRequest extends FormRequest
     public function rules()
     {
         return [
-        'headerType' => 'required|integer|between:1,2',
+        'headerType' => 'required|integer|between:1,3',
         'title' => 'nullable|string|max:255',
         'headerBgColor' => 'required|string|max:7',
         'headerTextColor' => 'required|string|max:7',
@@ -34,7 +34,7 @@ class HeaderRequest extends FormRequest
         return [
         'headerType.required' => __('validation.required', ['attribute' => 'header type']),
         'headerType.integer' => __('validation.integer', ['attribute' => 'header type']),
-        'headerType.between' => __('validation.between', ['attribute' => 'header type', 'min' => 1, 'max' => 2]),
+        'headerType.between' => __('validation.between', ['attribute' => 'header type', 'min' => 1, 'max' => 3]),
         'title.string' => __('validation.string', ['attribute' => 'title']),
         'title.max' => __('validation.max.string', ['attribute' => 'title', 'max' => 255]),
         'headerBgColor.required' => __('validation.required', ['attribute' => 'header background color']),
