@@ -1,4 +1,4 @@
-bước 1: tải xampp bản 3.3.0 -> cài đặt -> mở xampp control panel -> mở phần config của apache -> PHP(php.ini) -> control + F search từ "zip" -> xóa dấu ";" ở đầu dòng 
+bước 1: tải xampp -> cài đặt -> mở xampp control panel -> mở phần config của apache -> PHP(php.ini) -> control + F search từ "zip" -> xóa dấu ";" ở đầu dòng 
 
 bước 2: start apache và mysql
 
